@@ -3,43 +3,28 @@
 
 """
 Génère un fichier XML correctement formaté et indenté à partir :
-- d'un template Jinja2,
+- d'un template Jinja2 (tolérant aux variables manquantes),
 - d'un YAML de variables par défaut (optionnel),
 - d'un YAML de variables spécifiques (obligatoire, passé en argument).
 
-Comportement :
-  - Tente de valider et d'indenter le rendu XML.
-  - Si le XML est mal formé, affiche un WARNING et écrit tout de même le rendu brut.
-  - Supprime l'en-tête XML dans tous les cas.
-  - Active l'extension Jinja2 'do' pour permettre des opérations sans sortie.
-  - Tolère les variables manquantes (rendu = chaîne vide au lieu d'erreur).
+Caractéristiques :
+  - Pretty-print forcé avec minidom (pas d'ElementTree pour la sortie).
+  - Si le XML est mal formé, affiche un WARNING et écrit le rendu brut tel quel.
+  - Supprime la déclaration XML (<?xml ...?>) dans tous les cas.
+  - Active l'extension Jinja2 'do'.
 
-Chemins par défaut préconfigurés :
+Chemins par défaut :
   - Template : ./templates/template.xml.j2
   - Defaults : ./config/defaults.yaml (ignoré s'il n'existe pas)
 
-Résolution intelligente des chemins :
-  - On tente d'abord le chemin fourni en CLI (s'il y en a un).
-  - Sinon, on essaie le chemin par défaut relatif au CWD.
-  - Puis relatif au dossier du script.
-  - Puis relatif au dossier du YAML spécifique.
-
 Dépendances :
   pip install Jinja2 PyYAML
-
-Exemples :
-  python gen_xml.py envs/clientA.yaml
-  python gen_xml.py envs/clientA.yaml --template templates/config.xml.j2
-  python gen_xml.py envs/clientA.yaml --defaults config/defaults.yaml
-  python gen_xml.py envs/clientA.yaml -t templates/config.xml.j2 -d config/defaults.yaml
-  python gen_xml.py envs/clientA.yaml -o out/clientA.xml
 """
 
 from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-import io
 from typing import Any, Mapping, MutableMapping, Dict, Iterable
 
 # Dépendances externes
@@ -55,11 +40,11 @@ except ImportError:
     print("Erreur: Jinja2 n'est pas installé. Installez-le avec : pip install Jinja2", file=sys.stderr)
     sys.exit(1)
 
-import xml.etree.ElementTree as ET
 from xml.dom import minidom
+from xml.parsers.expat import ExpatError
 
 
-# Chemins par défaut préconfigurés
+# Chemins par défaut
 DEFAULT_TEMPLATE_REL = Path("templates/template.xml.j2")
 DEFAULT_DEFAULTS_REL = Path("config/defaults.yaml")
 
@@ -78,7 +63,7 @@ def read_yaml(path: Path) -> Dict[str, Any]:
 
 
 def deep_merge(base: MutableMapping[str, Any], override: Mapping[str, Any]) -> MutableMapping[str, Any]:
-    """Fusion récursive : les valeurs de 'override' prennent le pas sur 'base'."""
+    """Fusion récursive : les valeurs de 'override' remplacent celles de 'base'."""
     for k, v in override.items():
         if isinstance(v, dict) and isinstance(base.get(k), dict):
             deep_merge(base[k], v)  # type: ignore[index]
@@ -130,11 +115,11 @@ def render_jinja_xml(template_path: Path, context: Dict[str, Any]) -> str:
         raise FileNotFoundError(f"Template introuvable: {template_path}")
     env = Environment(
         loader=FileSystemLoader(str(template_path.parent)),
-        undefined=Undefined,               # ✅ tolérant : variables manquantes => chaîne vide
+        undefined=Undefined,               # tolérant : variables manquantes => chaîne vide
         trim_blocks=True,
         lstrip_blocks=True,
         autoescape=False,
-        extensions=["jinja2.ext.do"],      # ✅ Extension 'do' activée
+        extensions=["jinja2.ext.do"],      # extension 'do'
     )
     try:
         template = env.get_template(template_path.name)
@@ -147,53 +132,46 @@ def render_jinja_xml(template_path: Path, context: Dict[str, Any]) -> str:
         raise RuntimeError(f"Erreur lors du rendu Jinja2 : {e}") from e
 
     if not rendered.strip():
-        # Avec Undefined tolérant, un rendu entièrement vide est suspect.
         raise ValueError("Rendu Jinja2 vide. Vérifiez le template et les variables.")
     return rendered
 
 
 def strip_xml_declaration(text: str) -> str:
     """
-    Supprime la ligne d'en-tête XML si présente.
-    Gère les éventuels BOM/espaces en début de fichier.
+    Supprime la déclaration XML si présente (gère BOM/espaces initiaux).
     """
     lines = text.splitlines()
-    out_lines = []
-    skipped = False
-    for i, ln in enumerate(lines):
-        s = ln.lstrip("\ufeff \t")
-        if i == 0 and s.startswith("<?xml") and s.rstrip().endswith("?>"):
-            skipped = True
-            continue
-        out_lines.append(ln)
-    return "\n".join(out_lines) if skipped else text
+    if not lines:
+        return text
+    first = lines[0].lstrip("\ufeff \t")
+    if first.startswith("<?xml") and first.rstrip().endswith("?>"):
+        return "\n".join(lines[1:])
+    return text
 
 
-def validate_and_pretty_xml(xml_text: str) -> str:
+def pretty_with_minidom(xml_text: str) -> str:
     """
-    Valide le XML puis retourne une version indentée **sans en-tête XML**.
-    - Utilise ElementTree.indent quand disponible (Python 3.9+).
-    - Repli sur minidom sinon, avec suppression de l'en-tête.
-    Lève ValueError si le XML est mal formé.
+    Pretty-print forcé avec minidom.
+    - Valide la bonne formation (lève ValueError si invalide).
+    - Supprime la déclaration XML et les lignes vides superflues.
+    - Conserve les préfixes de namespaces du texte source.
     """
     try:
-        root = ET.fromstring(xml_text.encode("utf-8"))  # validation bien-formed
-        tree = ET.ElementTree(root)
-        try:
-            ET.indent(tree, space="  ", level=0)  # Python 3.9+
-            buf = io.BytesIO()
-            # ⚠️ Pas d'en-tête XML
-            tree.write(buf, encoding="utf-8", xml_declaration=False)
-            return buf.getvalue().decode("utf-8")
-        except AttributeError:
-            dom = minidom.parseString(xml_text.encode("utf-8"))
-            pretty_bytes = dom.toprettyxml(indent="  ", encoding="utf-8")
-            pretty = pretty_bytes.decode("utf-8")
-            # Supprimer la ligne d'en-tête et les lignes vides
-            lines = [ln for ln in pretty.splitlines() if ln.strip() and not ln.startswith("<?xml")]
-            return "\n".join(lines)
-    except ET.ParseError as e:
+        dom = minidom.parseString(xml_text.encode("utf-8"))
+    except ExpatError as e:
         raise ValueError(f"Le rendu n'est pas un XML bien formé : {e}") from e
+
+    pretty_bytes = dom.toprettyxml(indent="  ", encoding="utf-8")
+    pretty = pretty_bytes.decode("utf-8")
+
+    # Retirer déclaration XML et lignes vides
+    lines = []
+    for i, ln in enumerate(pretty.splitlines()):
+        if i == 0 and ln.startswith("<?xml"):
+            continue
+        if ln.strip():
+            lines.append(ln)
+    return "\n".join(lines)
 
 
 def compute_output_path(specific_yaml: Path, override: Path | None) -> Path:
@@ -257,17 +235,15 @@ def main():
         context = load_context(defaults_path if defaults_path and defaults_path.exists() else None, args.specific)
         rendered = render_jinja_xml(Path(template_path), context)
 
-        # Suppression d'en-tête XML éventuelle dès maintenant (couvre aussi le fallback)
+        # Supprimer toute déclaration XML éventuelle dès le rendu (cohérent avec la politique de sortie)
         rendered_no_decl = strip_xml_declaration(rendered)
 
-        # Essai de validation + pretty
+        # Pretty-print forcé via minidom (avec warning non bloquant si mal formé)
         try:
-            pretty_xml = validate_and_pretty_xml(rendered_no_decl)
-            output_text = pretty_xml
+            output_text = pretty_with_minidom(rendered_no_decl)
         except ValueError as ve:
-            # ⚠️ Warning (pas d'échec), on garde le rendu brut (sans en-tête)
             print(f"⚠️  WARNING: {ve}", file=sys.stderr)
-            output_text = rendered_no_decl
+            output_text = rendered_no_decl  # on écrit le brut (sans en-tête)
 
         out_path = compute_output_path(args.specific, args.output)
         out_path.parent.mkdir(parents=True, exist_ok=True)
