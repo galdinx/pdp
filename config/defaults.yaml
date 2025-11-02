@@ -39,7 +39,7 @@ vendor:
 
 payloadOnly: no
 headerID: OUT_1111
-societe: Galec
+societe: Galec  # ENUM: voir societes
 
 invoice:
   number: missing
@@ -51,7 +51,10 @@ invoice:
 PONumber: ""
 
 payment:
-  days: 30
+  types: 
+    VIREMENT: 30
+    PRELEVEMENT: 59
+  type: VIREMENT  # ENUM: voir types
   IBAN: FR761111111111111111
   termsID: 30N
 

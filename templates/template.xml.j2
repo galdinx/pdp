@@ -121,7 +121,7 @@
 
 
 <cac:PaymentMeans>
-    <cbc:PaymentMeansCode name="VIREMENT">{{ payment.days }}</cbc:PaymentMeansCode>
+    <cbc:PaymentMeansCode name="{{ payment.type }}">{{ payment.types[payment.type] }}</cbc:PaymentMeansCode>
     <cac:PayeeFinancialAccount>
         <cbc:ID>{{ payment.IBAN }}</cbc:ID>
     </cac:PayeeFinancialAccount>
