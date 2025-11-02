@@ -2,20 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-Génère un fichier XML correctement formaté et indenté à partir :
+Génère des fichiers XML correctement formatés et indentés à partir :
 - d'un template Jinja2 (tolérant aux variables manquantes),
 - d'un YAML de variables par défaut (optionnel),
-- d'un YAML de variables spécifiques (obligatoire, passé en argument).
+- d'un ou plusieurs YAML spécifiques (fichier ou répertoire).
 
 Caractéristiques :
+  - Entrée : chemin d'un fichier YAML OU d'un répertoire contenant des YAML.
+  - Option --recursive pour traiter également les sous-répertoires.
   - Pretty-print forcé avec minidom (pas d'ElementTree pour la sortie).
-  - Si le XML est mal formé, affiche un WARNING et écrit le rendu brut tel quel.
-  - Supprime la déclaration XML (<?xml ...?>) dans tous les cas.
-  - Active l'extension Jinja2 'do'.
-
-Chemins par défaut :
-  - Template : ./templates/template.xml.j2
-  - Defaults : ./config/defaults.yaml (ignoré s'il n'existe pas)
+  - Si le XML est mal formé, WARNING et écriture du rendu brut tel quel.
+  - Suppression de la déclaration XML (<?xml ...?>) dans tous les cas.
+  - Extension Jinja2 'do' activée.
+  - Variables manquantes : rendues comme chaîne vide (Undefined tolérant).
+  - Chemins par défaut :
+      - Template : ./templates/template.xml.j2
+      - Defaults : ./config/defaults.yaml (ignoré s'il n'existe pas)
 
 Dépendances :
   pip install Jinja2 PyYAML
@@ -25,7 +27,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Any, Mapping, MutableMapping, Dict, Iterable
+from typing import Any, Mapping, MutableMapping, Dict, Iterable, List, Tuple
 
 # Dépendances externes
 try:
@@ -84,7 +86,7 @@ def resolve_with_fallbacks(
       2) `defaults_rel` relatif à chaque ancre de `anchors`
     Retourne le premier chemin existant (si must_exist=True), sinon l'ultime candidat.
     """
-    candidates: list[Path] = []
+    candidates: List[Path] = []
     if preferred is not None:
         candidates.append(preferred)
     for anchor in anchors:
@@ -121,6 +123,7 @@ def render_jinja_xml(template_path: Path, context: Dict[str, Any]) -> str:
         autoescape=False,
         extensions=["jinja2.ext.do"],      # extension 'do'
     )
+    # 👉 filtres/globals custom éventuels à ajouter ici (ex: required, get_by_path)
     try:
         template = env.get_template(template_path.name)
     except TemplateNotFound as e:
@@ -165,7 +168,7 @@ def pretty_with_minidom(xml_text: str) -> str:
     pretty = pretty_bytes.decode("utf-8")
 
     # Retirer déclaration XML et lignes vides
-    lines = []
+    lines: List[str] = []
     for i, ln in enumerate(pretty.splitlines()):
         if i == 0 and ln.startswith("<?xml"):
             continue
@@ -175,18 +178,94 @@ def pretty_with_minidom(xml_text: str) -> str:
 
 
 def compute_output_path(specific_yaml: Path, override: Path | None) -> Path:
-    return override if override else specific_yaml.with_suffix(".xml")
+    # En mode répertoire, override est ignoré par design (règle d’origine)
+    return override if override and specific_yaml.is_file() else specific_yaml.with_suffix(".xml")
+
+
+def list_yaml_files(root: Path, recursive: bool) -> List[Path]:
+    """
+    Liste les fichiers .yaml et .yml directement dans 'root' (ou récursivement).
+    """
+    patterns = ["*.yaml", "*.yml"]
+    files: List[Path] = []
+    if recursive:
+        for pat in patterns:
+            files.extend(root.rglob(pat))
+    else:
+        for pat in patterns:
+            files.extend(root.glob(pat))
+    # Filtrer les fichiers seulement, trier pour déterminisme
+    return sorted([p for p in files if p.is_file()])
+
+
+def process_one_yaml(
+    specific_yaml: Path,
+    template_cli: Path | None,
+    defaults_cli: Path | None,
+    output_cli: Path | None,
+    cwd: Path,
+    script_dir: Path
+) -> Tuple[bool, bool]:
+    """
+    Traite un fichier YAML spécifique.
+    Retourne (ok, warned) :
+      - ok     : True si un fichier XML a été écrit, False si erreur bloquante
+      - warned : True si on a émis un warning (ex. XML mal formé), sinon False
+    """
+    # Résolution per-file : permet d'utiliser des chemins relatifs au YAML
+    specific_dir = specific_yaml.resolve().parent
+
+    template_path = resolve_with_fallbacks(
+        preferred=template_cli,
+        defaults_rel=DEFAULT_TEMPLATE_REL,
+        anchors=[cwd, script_dir, specific_dir],
+        must_exist=True
+    )
+    if not template_path or not template_path.exists():
+        print(f"❌ Template introuvable pour {specific_yaml}. Essayé: {template_cli or DEFAULT_TEMPLATE_REL}", file=sys.stderr)
+        return (False, False)
+
+    defaults_path = resolve_with_fallbacks(
+        preferred=defaults_cli,
+        defaults_rel=DEFAULT_DEFAULTS_REL,
+        anchors=[cwd, script_dir, specific_dir],
+        must_exist=False
+    )
+
+    try:
+        context = load_context(defaults_path if defaults_path and defaults_path.exists() else None, specific_yaml)
+        rendered = render_jinja_xml(Path(template_path), context)
+        rendered_no_decl = strip_xml_declaration(rendered)
+
+        warned = False
+        try:
+            output_text = pretty_with_minidom(rendered_no_decl)
+        except ValueError as ve:
+            print(f"⚠️  WARNING ({specific_yaml.name}) : {ve}", file=sys.stderr)
+            output_text = rendered_no_decl
+            warned = True
+
+        out_path = compute_output_path(specific_yaml, output_cli)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(output_text, encoding="utf-8")
+
+        print(f"✅ XML généré : {out_path}")
+        return (True, warned)
+
+    except Exception as e:
+        print(f"❌ Erreur sur {specific_yaml} : {e}", file=sys.stderr)
+        return (False, False)
 
 
 def main():
     parser = argparse.ArgumentParser(
         prog="gen_xml.py",
-        description="Génère un XML formaté depuis un template Jinja2 et deux fichiers YAML (défauts + spécifiques)."
+        description="Génère des XML depuis un template Jinja2 et des YAML (fichier unique ou répertoire)."
     )
     parser.add_argument(
-        "specific",
+        "input",
         type=Path,
-        help="Chemin du fichier YAML de variables spécifiques (obligatoire)."
+        help="Chemin d'un fichier YAML spécifique OU d'un répertoire contenant des fichiers YAML."
     )
     parser.add_argument(
         "-t", "--template",
@@ -203,58 +282,72 @@ def main():
     parser.add_argument(
         "-o", "--output",
         type=Path,
-        help="Chemin de sortie XML (optionnel). Par défaut, même dossier/nom que le YAML spécifique avec extension .xml."
+        help="Chemin de sortie XML (optionnel). Si 'input' est un fichier, écrit ici. "
+             "Si 'input' est un répertoire, cette option est ignorée (on écrit à côté de chaque YAML)."
+    )
+    parser.add_argument(
+        "-r", "--recursive",
+        action="store_true",
+        help="En mode répertoire, traite aussi les sous-répertoires."
     )
     args = parser.parse_args()
 
-    # Points d'ancrage pour la résolution des chemins
     cwd = Path.cwd()
     script_dir = Path(__file__).resolve().parent
-    specific_dir = args.specific.resolve().parent
 
-    # Résolution du template (doit exister)
-    template_path = resolve_with_fallbacks(
-        preferred=args.template,
-        defaults_rel=DEFAULT_TEMPLATE_REL,
-        anchors=[cwd, script_dir, specific_dir],
-        must_exist=True
-    )
-    if not template_path or not template_path.exists():
-        print(f"❌ Template introuvable. Essayé: {args.template or DEFAULT_TEMPLATE_REL}", file=sys.stderr)
+    if not args.input.exists():
+        print(f"❌ Chemin introuvable : {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    # Résolution du defaults.yaml (optionnel)
-    defaults_path = resolve_with_fallbacks(
-        preferred=args.defaults,
-        defaults_rel=DEFAULT_DEFAULTS_REL,
-        anchors=[cwd, script_dir, specific_dir],
-        must_exist=False
-    )
+    total = 0
+    ok_count = 0
+    warn_count = 0
+    err_count = 0
 
-    try:
-        context = load_context(defaults_path if defaults_path and defaults_path.exists() else None, args.specific)
-        rendered = render_jinja_xml(Path(template_path), context)
+    if args.input.is_file():
+        # Cas fichier unique
+        total = 1
+        ok, warned = process_one_yaml(
+            specific_yaml=args.input,
+            template_cli=args.template,
+            defaults_cli=args.defaults,
+            output_cli=args.output,   # autorisé en mode fichier
+            cwd=cwd,
+            script_dir=script_dir
+        )
+        ok_count += 1 if ok else 0
+        warn_count += 1 if warned else 0
+        err_count += 0 if ok else 1
 
-        # Supprimer toute déclaration XML éventuelle dès le rendu (cohérent avec la politique de sortie)
-        rendered_no_decl = strip_xml_declaration(rendered)
+    else:
+        # Cas répertoire
+        if args.output:
+            print("ℹ️  Info: option --output ignorée en mode répertoire ; les fichiers .xml seront générés à côté de chaque YAML.", file=sys.stderr)
 
-        # Pretty-print forcé via minidom (avec warning non bloquant si mal formé)
-        try:
-            output_text = pretty_with_minidom(rendered_no_decl)
-        except ValueError as ve:
-            print(f"⚠️  WARNING: {ve}", file=sys.stderr)
-            output_text = rendered_no_decl  # on écrit le brut (sans en-tête)
+        yaml_files = list_yaml_files(args.input, recursive=args.recursive)
+        if not yaml_files:
+            print("⚠️  Aucun fichier YAML (*.yaml|*.yml) trouvé dans le répertoire fourni.", file=sys.stderr)
+            sys.exit(0)
 
-        out_path = compute_output_path(args.specific, args.output)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(output_text, encoding="utf-8")
+        total = len(yaml_files)
+        print(f"🔎 {total} fichier(s) YAML détecté(s)...")
 
-        print(f"✅ XML généré : {out_path}")
-    except Exception as e:
-        print("❌ Erreur :", str(e), file=sys.stderr)
-        # Pour debug détaillé, décommentez :
-        # import traceback; traceback.print_exc()
-        sys.exit(1)
+        for yml in yaml_files:
+            ok, warned = process_one_yaml(
+                specific_yaml=yml,
+                template_cli=args.template,
+                defaults_cli=args.defaults,
+                output_cli=None,      # ignoré en mode répertoire
+                cwd=cwd,
+                script_dir=script_dir
+            )
+            ok_count += 1 if ok else 0
+            warn_count += 1 if warned else 0
+            err_count += 0 if ok else 1
+
+    # Résumé
+    print(f"\nRésumé : {ok_count}/{total} OK — {warn_count} warning(s) — {err_count} erreur(s).")
+    sys.exit(0 if err_count == 0 else 1)
 
 
 if __name__ == "__main__":
