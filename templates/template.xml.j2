@@ -157,7 +157,7 @@
         <cbc:TaxableAmount currencyID="{{ invoice.currency }}">{{ total }}</cbc:TaxableAmount>
         <cbc:TaxAmount currencyID="{{ invoice.currency }}">{{ VATamount[vat] }}</cbc:TaxAmount>
         <cac:TaxCategory>
-            <cbc:ID>S</cbc:ID>
+            <cbc:ID>{% if vat != 0 %}S{% else %}Z{%endif}</cbc:ID>
             <cbc:Percent>{{ vat }}</cbc:Percent>
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
@@ -189,7 +189,7 @@
     <cac:Item>
         <cbc:Name>{{ line.name }}</cbc:Name>
         <cac:ClassifiedTaxCategory>
-            <cbc:ID>S</cbc:ID>
+            <cbc:ID>{% if line.vat != 0 %}S{% else %}Z{%endif}</cbc:ID>
             <cbc:Percent>{{ line.vat }}</cbc:Percent>
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
