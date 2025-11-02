@@ -55,7 +55,7 @@ payment:
     VIREMENT: 30
     PRELEVEMENT: 59
   type: VIREMENT  # ENUM: voir types
-  IBAN: FR761111111111111111
+  IBAN: missing
   termsID: 30N
 
 invoiceLines: []
