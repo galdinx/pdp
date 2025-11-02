@@ -7,17 +7,16 @@ Génère des fichiers XML correctement formatés et indentés à partir :
 - d'un YAML de variables par défaut (optionnel),
 - d'un ou plusieurs YAML spécifiques (fichier ou répertoire).
 
-Nouveauté :
+Fonctionnement :
   - Pour chaque YAML, génère 2 sorties :
-      1) payloadOnly = False  → fichier normal (ex: foo.xml)
-      2) payloadOnly = True   → fichier suffixé "_webchecker" (ex: foo_webchecker.xml)
-
-Caractéristiques :
+      1) payloadOnly = False  → fichier normal      (ex: foo.xml)
+      2) payloadOnly = True   → fichier Webchecker  (ex: foo_webchecker.xml)
   - Entrée : fichier YAML OU répertoire (avec --recursive pour descendre).
   - Pretty-print forcé via minidom.
   - XML mal formé : WARNING et écriture du rendu brut tel quel.
   - Suppression de la déclaration XML (<?xml ...?>).
   - Jinja2 tolérant aux variables manquantes + extension 'do'.
+  - Filtre Jinja 'required' (simple) pour rendre certaines variables obligatoires.
   - Chemins par défaut :
       - Template : ./templates/template.xml.j2
       - Defaults : ./config/defaults.yaml (ignoré s'il n'existe pas).
@@ -42,6 +41,7 @@ except ImportError:
 
 try:
     from jinja2 import Environment, FileSystemLoader, TemplateNotFound, Undefined
+    from jinja2.runtime import Undefined as RTUndefined  # pour détecter les valeurs indéfinies dans le filtre
 except ImportError:
     print("Erreur: Jinja2 n'est pas installé. Installez-le avec : pip install Jinja2", file=sys.stderr)
     sys.exit(1)
@@ -54,6 +54,8 @@ from xml.parsers.expat import ExpatError
 DEFAULT_TEMPLATE_REL = Path("templates/template.xml.j2")
 DEFAULT_DEFAULTS_REL = Path("config/defaults.yaml")
 
+
+# -------------------- Utilitaires YAML & fusion --------------------
 
 def read_yaml(path: Path) -> Dict[str, Any]:
     if not path.exists():
@@ -116,6 +118,47 @@ def load_context(defaults_path: Path | None, specific_yaml: Path) -> Dict[str, A
     return deep_merge(defaults.copy(), specific)
 
 
+# -------------------- Filtre Jinja : required (simple) --------------------
+
+def _is_effectively_empty(value: Any) -> bool:
+    """Vrai si value est vide : '', whitespace, [], (), set(), {}."""
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip() == ""
+    try:
+        if hasattr(value, "__len__") and not isinstance(value, (str, bytes)):
+            return len(value) == 0  # type: ignore[arg-type]
+    except Exception:
+        pass
+    return False
+
+
+def required(value: Any, name: str | None = None, allow_empty: bool = False) -> Any:
+    """
+    Filtre Jinja (simple) : rend la valeur obligatoire.
+      - Lève ValueError si la valeur est Undefined/None.
+      - Si allow_empty=False (défaut), lève aussi si '' / whitespace / [] / () / {} / set().
+      - Retourne la valeur inchangée sinon (pour chainage).
+
+    Usage :
+      {{ env.endpoint | required('env.endpoint') }}
+      {{ comment | required('comment', allow_empty=True) }}
+    """
+    if isinstance(value, RTUndefined):
+        label = f"'{name}'" if name else "variable requise"
+        raise ValueError(f"Variable requise manquante : {label}")
+    if value is None:
+        label = f"'{name}'" if name else "variable requise"
+        raise ValueError(f"Variable requise manquante (None) : {label}")
+    if not allow_empty and _is_effectively_empty(value):
+        label = f"'{name}'" if name else "variable requise"
+        raise ValueError(f"Variable requise vide : {label}")
+    return value
+
+
+# -------------------- Rendu / Sortie --------------------
+
 def render_jinja_xml(template_path: Path, context: Dict[str, Any]) -> str:
     if not template_path.exists():
         raise FileNotFoundError(f"Template introuvable: {template_path}")
@@ -127,7 +170,9 @@ def render_jinja_xml(template_path: Path, context: Dict[str, Any]) -> str:
         autoescape=False,
         extensions=["jinja2.ext.do"],      # extension 'do'
     )
-    # 👉 filtres/globals custom éventuels à ajouter ici (ex: required, get_by_path)
+    # Filtres et globals personnalisés
+    env.filters["required"] = required
+
     try:
         template = env.get_template(template_path.name)
     except TemplateNotFound as e:
@@ -136,6 +181,7 @@ def render_jinja_xml(template_path: Path, context: Dict[str, Any]) -> str:
     try:
         rendered = template.render(**context)
     except Exception as e:
+        # Erreur générique de rendu (dont ValueError venant de |required)
         raise RuntimeError(f"Erreur lors du rendu Jinja2 : {e}") from e
 
     if not rendered.strip():
@@ -216,13 +262,13 @@ def render_and_write_variant(
     """
     ctx = copy.deepcopy(context)
 
-    # ✅ Booléen pour éviter le piège des chaînes truthy
+    # Booléen pour éviter les pièges des chaînes "truthy"
     ctx["payloadOnly"] = payload_only_bool
     # Compat : version chaîne si le template compare à 'yes'/'no'
     ctx["payloadOnly_str"] = "yes" if payload_only_bool else "no"
-    # Alias snake_case (si jamais)
+    # Alias snake_case
     ctx["payload_only"] = payload_only_bool
-    # Regroupement optionnel dans un dict 'flags'
+    # Regroupement optionnel
     flags = ctx.get("flags") or {}
     if not isinstance(flags, dict):
         flags = {}
@@ -247,6 +293,7 @@ def render_and_write_variant(
         print(f"✅ XML généré : {output_path}")
         return (True, warned)
     except Exception as e:
+        # Message générique (pas de détail spécifique à la variable manquante)
         print(f"❌ Erreur lors du rendu/écriture de {output_path.name} : {e}", file=sys.stderr)
         return (False, False)
 
@@ -346,6 +393,7 @@ def main():
         print(f"❌ Chemin introuvable : {args.input}", file=sys.stderr)
         sys.exit(1)
 
+    # Gestion fichier vs répertoire
     total_yaml = 0
     total_outputs = 0  # 2 par YAML
     ok_count = 0

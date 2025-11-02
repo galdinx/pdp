@@ -6,7 +6,7 @@
          <v2:Header>
             <v2:ID type="String">{{ headerID }}</v2:ID>
             <v2:Sender>
-               <v2:ID type="MISC">{{ vendor.SIREN }}</v2:ID>
+               <v2:ID type="MISC">{{ vendor.SIREN | required('vendor.SIREN') }}</v2:ID>
             </v2:Sender>
             <v2:Intermediary>
                <v2:ID type="Generic">DOCAPOSTE</v2:ID>
@@ -28,8 +28,8 @@
       <cbc:ProfileID>S1</cbc:ProfileID>
 
 
-<cbc:ID>{{ invoice.number }}</cbc:ID>
-<cbc:IssueDate>{{ invoice.issueDate }}</cbc:IssueDate>
+<cbc:ID>{{ invoice.number | required('invoice.number') }}</cbc:ID>
+<cbc:IssueDate>{{ invoice.issueDate | required('invoice.issueDate') }}</cbc:IssueDate>
 <cbc:DueDate>{{ invoice.dueDate }}</cbc:DueDate>
 <cbc:InvoiceTypeCode name="INV">380</cbc:InvoiceTypeCode>
 {% for note in invoice.notes %}
@@ -124,7 +124,7 @@
 <cac:PaymentMeans>
     <cbc:PaymentMeansCode name="{{ payment.type }}">{{ payment.types[payment.type] }}</cbc:PaymentMeansCode>
     <cac:PayeeFinancialAccount>
-        <cbc:ID>{{ payment.IBAN }}</cbc:ID>
+        <cbc:ID>{{ payment.IBAN | required('payment.IBAN') }}</cbc:ID>
     </cac:PayeeFinancialAccount>
 </cac:PaymentMeans>
 <cac:PaymentTerms>

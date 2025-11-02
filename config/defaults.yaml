@@ -42,20 +42,20 @@ headerID: OUT_1111
 societe: Galec  # ENUM: voir societes
 
 invoice:
-  number: missing
-  issueDate: missing
-  dueDate: ""
+  number: ''  # champ obligatoire
+  issueDate: ''  # champ obligatoire
+  dueDate: ''
   notes: []
   currency: EUR
 
-PONumber: ""
+PONumber: ''
 
 payment:
   types: 
     VIREMENT: 30
     PRELEVEMENT: 59
   type: VIREMENT  # ENUM: voir types
-  IBAN: missing
+  IBAN: ''  # champ obligatoire
   termsID: 30N
 
 invoiceLines: []
