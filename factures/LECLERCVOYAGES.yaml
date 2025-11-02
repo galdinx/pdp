@@ -3,7 +3,7 @@ societe: Galec
 invoice:
   number: test3-80139772/001
   issueDate: 2025-06-26
-  #dueDate: 2025-08-29
+  dueDate: 2025-08-29
   notes:
     - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
     - "#PMD# Pénalités de retard : Application du contrat. A défaut : taux de l'article L441-10"
@@ -22,7 +22,8 @@ vendor:
 
 payment:
   type: VIREMENT
-  #IBAN: FR7430
+  IBAN: missing
+
 invoiceLines:
   - name: LOCATION VEHICULE BORDEAUX 1189808512
     quantity: 1
@@ -37,3 +38,4 @@ invoiceLines:
 
 VATamount:
   20: 1.5
+  0: 0

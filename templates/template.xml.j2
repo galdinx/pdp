@@ -30,7 +30,7 @@
 
 <cbc:ID>{{ invoice.number | required('invoice.number') }}</cbc:ID>
 <cbc:IssueDate>{{ invoice.issueDate | required('invoice.issueDate') }}</cbc:IssueDate>
-<cbc:DueDate>{{ invoice.dueDate }}</cbc:DueDate>
+<cbc:DueDate>{{ invoice.dueDate | required('invoice.dueDate') }}</cbc:DueDate>
 <cbc:InvoiceTypeCode name="INV">380</cbc:InvoiceTypeCode>
 {% for note in invoice.notes %}
     <cbc:Note>{{ note }}</cbc:Note>

@@ -44,7 +44,7 @@ societe: Galec  # ENUM: voir societes
 invoice:
   number: ''  # champ obligatoire
   issueDate: ''  # champ obligatoire
-  dueDate: ''
+  dueDate: ''  # champ obligatoire
   notes: []
   currency: EUR
 
