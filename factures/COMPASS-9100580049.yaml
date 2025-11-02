@@ -1,0 +1,36 @@
+payloadOnly: no
+societe: Galec
+
+invoice:
+  number: test1-9100580049
+  issueDate: 2025-06-30
+  dueDate: 2025-08-29
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités de retard : Application du contrat. A défaut : taux de l'article L441-10"
+
+PONumber: GLC014577
+
+vendor:
+  name: COMPASS GROUP FRANCE
+  SIREN: 632041042
+  VAT: FR21632041042
+  address:
+    streetName: 117-133 Avenue de la République
+    cityName: Châtillon
+    postalCode: 92320 
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7430002005730000004070M87
+
+invoiceLines:
+  - name: PETITS DEJEUNERS 
+    quantity: 1
+    unitprice: 51.06
+    vat: 10
+    note: Commande de Christina Gil
+
+VATamount:
+  10: 5.11

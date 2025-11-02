@@ -21,6 +21,10 @@ vendor:
     postalCode: 92715
     country: FR
 
+payment:
+  type: VIREMENT
+  IBAN: FR7430002005730000004070M87
+
 invoiceLines:
   - note: testnote
     quantity: 1
