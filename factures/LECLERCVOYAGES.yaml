@@ -1,0 +1,43 @@
+payloadOnly: no
+societe: Galec
+
+invoice:
+  number: test1-80139772/001
+  issueDate: 2025-06-26
+  #dueDate: 2025-08-29
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités de retard : Application du contrat. A défaut : taux de l'article L441-10"
+
+PONumber: GLC014628
+
+vendor:
+  name: LECLERC VOYAGES
+  SIREN: 552095812
+  VAT: FR32552095812
+  address:
+    streetName: 26 QUAI MARCEL BOYER
+    cityName: IVRY SUR SEINE CEDEX
+    postalCode: 94859
+    country: FR
+
+payment:
+  type: VIREMENT
+  #IBAN: FR7430
+invoiceLines:
+  - name: LOCATION VEHICULE BORDEAUX 1189808512
+VOLKSWAGEN T CROSS Date de départ :
+19/06/2025 Date de retour : 19/06/2025
+    quantity: 1
+    unitprice: 200.56
+    vat: 0
+    note: 1189808512
+    - name: FRAIS DE SERVICE
+    quantity: 1
+    unitprice: 9
+    vat: 20
+    note: 1189808512
+
+VATamount:
+  0: 0
+  20: 1.5

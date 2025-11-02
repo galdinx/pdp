@@ -1,4 +1,4 @@
-payloadOnly: yes
+payloadOnly: no
 societe: Galec
 
 invoice:
@@ -23,14 +23,19 @@ vendor:
 
 payment:
   type: VIREMENT
-  IBAN: FR7430002005730000004070M87
+  IBAN: FR761111111111111111
 
 invoiceLines:
-  - note: testnote
+  - name: Licence ERP
     quantity: 1
-    unitprice: 100
-    name: testname
+    unitprice: 50
     vat: 20
-
+    note: Licence ERP
+  - name: Licence ERP
+    quantity: 1
+    unitprice: 50
+    vat: 20
+    note: Licence ERP
+    
 VATamount:
   20: 20
