@@ -1,6 +1,6 @@
 societes:
   Galec:
-    name: SC GALEC
+    name: SC Galec
     SIREN: 642007991
     VAT: FR36642007991
     address:
@@ -9,7 +9,7 @@ societes:
       postalCode: 94200
       country: FR
   Scafel:
-    name: SCAFEL
+    name: Scafel
     SIREN: 851303982
     VAT: FR25851303982
     address:
@@ -18,7 +18,7 @@ societes:
       postalCode: 94200
       country: FR
   ConsoRegie:
-    name: CONSO REGIE
+    name: Conso Regie
     SIREN: 823332978
     VAT: FR64823332978
     address:
