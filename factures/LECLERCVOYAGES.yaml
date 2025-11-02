@@ -1,8 +1,7 @@
-payloadOnly: no
 societe: Galec
 
 invoice:
-  number: test1-80139772/001
+  number: test3-80139772/001
   issueDate: 2025-06-26
   #dueDate: 2025-08-29
   notes:
@@ -26,18 +25,16 @@ payment:
   #IBAN: FR7430
 invoiceLines:
   - name: LOCATION VEHICULE BORDEAUX 1189808512
-VOLKSWAGEN T CROSS Date de départ :
-19/06/2025 Date de retour : 19/06/2025
     quantity: 1
     unitprice: 200.56
     vat: 0
     note: 1189808512
-    - name: FRAIS DE SERVICE
+  - name: FRAIS DE SERVICE
     quantity: 1
-    unitprice: 9
+    unitprice: 7.5
     vat: 20
     note: 1189808512
 
 VATamount:
-  0: 0
   20: 1.5
+  0: 0

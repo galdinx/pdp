@@ -7,17 +7,20 @@ Génère des fichiers XML correctement formatés et indentés à partir :
 - d'un YAML de variables par défaut (optionnel),
 - d'un ou plusieurs YAML spécifiques (fichier ou répertoire).
 
+Nouveauté :
+  - Pour chaque YAML, génère 2 sorties :
+      1) payloadOnly = False  → fichier normal (ex: foo.xml)
+      2) payloadOnly = True   → fichier suffixé "_webchecker" (ex: foo_webchecker.xml)
+
 Caractéristiques :
-  - Entrée : chemin d'un fichier YAML OU d'un répertoire contenant des YAML.
-  - Option --recursive pour traiter également les sous-répertoires.
-  - Pretty-print forcé avec minidom (pas d'ElementTree pour la sortie).
-  - Si le XML est mal formé, WARNING et écriture du rendu brut tel quel.
-  - Suppression de la déclaration XML (<?xml ...?>) dans tous les cas.
-  - Extension Jinja2 'do' activée.
-  - Variables manquantes : rendues comme chaîne vide (Undefined tolérant).
+  - Entrée : fichier YAML OU répertoire (avec --recursive pour descendre).
+  - Pretty-print forcé via minidom.
+  - XML mal formé : WARNING et écriture du rendu brut tel quel.
+  - Suppression de la déclaration XML (<?xml ...?>).
+  - Jinja2 tolérant aux variables manquantes + extension 'do'.
   - Chemins par défaut :
       - Template : ./templates/template.xml.j2
-      - Defaults : ./config/defaults.yaml (ignoré s'il n'existe pas)
+      - Defaults : ./config/defaults.yaml (ignoré s'il n'existe pas).
 
 Dépendances :
   pip install Jinja2 PyYAML
@@ -28,6 +31,7 @@ import argparse
 import sys
 from pathlib import Path
 from typing import Any, Mapping, MutableMapping, Dict, Iterable, List, Tuple
+import copy
 
 # Dépendances externes
 try:
@@ -82,9 +86,9 @@ def resolve_with_fallbacks(
 ) -> Path | None:
     """
     Tente, dans l'ordre :
-      1) `preferred` (si fourni)
-      2) `defaults_rel` relatif à chaque ancre de `anchors`
-    Retourne le premier chemin existant (si must_exist=True), sinon l'ultime candidat.
+      1) chemin préféré (si fourni)
+      2) chemin par défaut relatif à chaque ancre de `anchors`
+    Retourne le premier existant (si must_exist=True), sinon l'ultime candidat.
     """
     candidates: List[Path] = []
     if preferred is not None:
@@ -140,9 +144,7 @@ def render_jinja_xml(template_path: Path, context: Dict[str, Any]) -> str:
 
 
 def strip_xml_declaration(text: str) -> str:
-    """
-    Supprime la déclaration XML si présente (gère BOM/espaces initiaux).
-    """
+    """Supprime la déclaration XML si présente (gère BOM/espaces initiaux)."""
     lines = text.splitlines()
     if not lines:
         return text
@@ -177,15 +179,20 @@ def pretty_with_minidom(xml_text: str) -> str:
     return "\n".join(lines)
 
 
-def compute_output_path(specific_yaml: Path, override: Path | None) -> Path:
-    # En mode répertoire, override est ignoré par design (règle d’origine)
-    return override if override and specific_yaml.is_file() else specific_yaml.with_suffix(".xml")
+def compute_output_path_for_base(specific_yaml: Path, override: Path | None) -> Path:
+    """Chemin du fichier 'base' (payloadOnly=False)."""
+    return override if (override and specific_yaml.is_file()) else specific_yaml.with_suffix(".xml")
+
+
+def webchecker_path_from(base_xml: Path) -> Path:
+    """Insère le suffixe '_webchecker' avant l'extension. Ex: foo.xml -> foo_webchecker.xml"""
+    suffix = base_xml.suffix  # '.xml' attendu
+    stem = base_xml.stem
+    return base_xml.with_name(f"{stem}_webchecker{suffix or '.xml'}")
 
 
 def list_yaml_files(root: Path, recursive: bool) -> List[Path]:
-    """
-    Liste les fichiers .yaml et .yml directement dans 'root' (ou récursivement).
-    """
+    """Liste les fichiers .yaml et .yml dans 'root' (évent. récursif)."""
     patterns = ["*.yaml", "*.yml"]
     files: List[Path] = []
     if recursive:
@@ -194,8 +201,54 @@ def list_yaml_files(root: Path, recursive: bool) -> List[Path]:
     else:
         for pat in patterns:
             files.extend(root.glob(pat))
-    # Filtrer les fichiers seulement, trier pour déterminisme
     return sorted([p for p in files if p.is_file()])
+
+
+def render_and_write_variant(
+    template_path: Path,
+    context: Dict[str, Any],
+    payload_only_bool: bool,
+    output_path: Path
+) -> Tuple[bool, bool]:
+    """
+    Rend une variante donnée (payloadOnly booléen) et écrit le fichier.
+    Retourne (ok, warned).
+    """
+    ctx = copy.deepcopy(context)
+
+    # ✅ Booléen pour éviter le piège des chaînes truthy
+    ctx["payloadOnly"] = payload_only_bool
+    # Compat : version chaîne si le template compare à 'yes'/'no'
+    ctx["payloadOnly_str"] = "yes" if payload_only_bool else "no"
+    # Alias snake_case (si jamais)
+    ctx["payload_only"] = payload_only_bool
+    # Regroupement optionnel dans un dict 'flags'
+    flags = ctx.get("flags") or {}
+    if not isinstance(flags, dict):
+        flags = {}
+    flags["payloadOnly"] = payload_only_bool
+    ctx["flags"] = flags
+
+    try:
+        rendered = render_jinja_xml(template_path, ctx)
+        rendered_no_decl = strip_xml_declaration(rendered)
+
+        warned = False
+        try:
+            pretty = pretty_with_minidom(rendered_no_decl)
+            output_text = pretty
+        except ValueError as ve:
+            print(f"⚠️  WARNING ({output_path.name}) : {ve}", file=sys.stderr)
+            output_text = rendered_no_decl
+            warned = True
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(output_text, encoding="utf-8")
+        print(f"✅ XML généré : {output_path}")
+        return (True, warned)
+    except Exception as e:
+        print(f"❌ Erreur lors du rendu/écriture de {output_path.name} : {e}", file=sys.stderr)
+        return (False, False)
 
 
 def process_one_yaml(
@@ -205,14 +258,11 @@ def process_one_yaml(
     output_cli: Path | None,
     cwd: Path,
     script_dir: Path
-) -> Tuple[bool, bool]:
+) -> Tuple[int, int, int]:
     """
-    Traite un fichier YAML spécifique.
-    Retourne (ok, warned) :
-      - ok     : True si un fichier XML a été écrit, False si erreur bloquante
-      - warned : True si on a émis un warning (ex. XML mal formé), sinon False
+    Traite un fichier YAML spécifique et génère 2 fichiers (payloadOnly=False & True).
+    Retourne (ok_count, warn_count, err_count).
     """
-    # Résolution per-file : permet d'utiliser des chemins relatifs au YAML
     specific_dir = specific_yaml.resolve().parent
 
     template_path = resolve_with_fallbacks(
@@ -223,7 +273,7 @@ def process_one_yaml(
     )
     if not template_path or not template_path.exists():
         print(f"❌ Template introuvable pour {specific_yaml}. Essayé: {template_cli or DEFAULT_TEMPLATE_REL}", file=sys.stderr)
-        return (False, False)
+        return (0, 0, 1)
 
     defaults_path = resolve_with_fallbacks(
         preferred=defaults_cli,
@@ -234,33 +284,29 @@ def process_one_yaml(
 
     try:
         context = load_context(defaults_path if defaults_path and defaults_path.exists() else None, specific_yaml)
-        rendered = render_jinja_xml(Path(template_path), context)
-        rendered_no_decl = strip_xml_declaration(rendered)
 
-        warned = False
-        try:
-            output_text = pretty_with_minidom(rendered_no_decl)
-        except ValueError as ve:
-            print(f"⚠️  WARNING ({specific_yaml.name}) : {ve}", file=sys.stderr)
-            output_text = rendered_no_decl
-            warned = True
+        base_out = compute_output_path_for_base(specific_yaml, output_cli)
+        webchecker_out = webchecker_path_from(base_out)
 
-        out_path = compute_output_path(specific_yaml, output_cli)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(output_text, encoding="utf-8")
+        # 1) payloadOnly = False  -> base_out
+        ok1, warn1 = render_and_write_variant(template_path, context, False, base_out)
+        # 2) payloadOnly = True   -> webchecker_out
+        ok2, warn2 = render_and_write_variant(template_path, context, True, webchecker_out)
 
-        print(f"✅ XML généré : {out_path}")
-        return (True, warned)
+        ok_count = (1 if ok1 else 0) + (1 if ok2 else 0)
+        warn_count = (1 if warn1 else 0) + (1 if warn2 else 0)
+        err_count = (0 if ok1 else 1) + (0 if ok2 else 1)
+        return (ok_count, warn_count, err_count)
 
     except Exception as e:
         print(f"❌ Erreur sur {specific_yaml} : {e}", file=sys.stderr)
-        return (False, False)
+        return (0, 0, 1)
 
 
 def main():
     parser = argparse.ArgumentParser(
         prog="gen_xml.py",
-        description="Génère des XML depuis un template Jinja2 et des YAML (fichier unique ou répertoire)."
+        description="Génère 2 XML (payloadOnly=False et payloadOnly=True) depuis un template Jinja2 et des YAML (fichier ou répertoire)."
     )
     parser.add_argument(
         "input",
@@ -282,8 +328,9 @@ def main():
     parser.add_argument(
         "-o", "--output",
         type=Path,
-        help="Chemin de sortie XML (optionnel). Si 'input' est un fichier, écrit ici. "
-             "Si 'input' est un répertoire, cette option est ignorée (on écrit à côté de chaque YAML)."
+        help="Chemin de sortie pour la variante payloadOnly=False (mode fichier uniquement). "
+             "La variante payloadOnly=True sera écrite au même emplacement avec suffixe '_webchecker'. "
+             "Ignorée en mode répertoire."
     )
     parser.add_argument(
         "-r", "--recursive",
@@ -299,15 +346,15 @@ def main():
         print(f"❌ Chemin introuvable : {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    total = 0
+    total_yaml = 0
+    total_outputs = 0  # 2 par YAML
     ok_count = 0
     warn_count = 0
     err_count = 0
 
     if args.input.is_file():
-        # Cas fichier unique
-        total = 1
-        ok, warned = process_one_yaml(
+        total_yaml = 1
+        ok, warn, err = process_one_yaml(
             specific_yaml=args.input,
             template_cli=args.template,
             defaults_cli=args.defaults,
@@ -315,25 +362,26 @@ def main():
             cwd=cwd,
             script_dir=script_dir
         )
-        ok_count += 1 if ok else 0
-        warn_count += 1 if warned else 0
-        err_count += 0 if ok else 1
+        ok_count += ok
+        warn_count += warn
+        err_count += err
+        total_outputs += 2
 
     else:
-        # Cas répertoire
         if args.output:
-            print("ℹ️  Info: option --output ignorée en mode répertoire ; les fichiers .xml seront générés à côté de chaque YAML.", file=sys.stderr)
+            print("ℹ️  Info: option --output ignorée en mode répertoire ; chaque YAML génère ses sorties à côté du fichier.", file=sys.stderr)
 
         yaml_files = list_yaml_files(args.input, recursive=args.recursive)
         if not yaml_files:
             print("⚠️  Aucun fichier YAML (*.yaml|*.yml) trouvé dans le répertoire fourni.", file=sys.stderr)
             sys.exit(0)
 
-        total = len(yaml_files)
-        print(f"🔎 {total} fichier(s) YAML détecté(s)...")
+        total_yaml = len(yaml_files)
+        total_outputs = total_yaml * 2
+        print(f"🔎 {total_yaml} fichier(s) YAML détecté(s) → {total_outputs} sortie(s) attendue(s).")
 
         for yml in yaml_files:
-            ok, warned = process_one_yaml(
+            ok, warn, err = process_one_yaml(
                 specific_yaml=yml,
                 template_cli=args.template,
                 defaults_cli=args.defaults,
@@ -341,12 +389,12 @@ def main():
                 cwd=cwd,
                 script_dir=script_dir
             )
-            ok_count += 1 if ok else 0
-            warn_count += 1 if warned else 0
-            err_count += 0 if ok else 1
+            ok_count += ok
+            warn_count += warn
+            err_count += err
 
-    # Résumé
-    print(f"\nRésumé : {ok_count}/{total} OK — {warn_count} warning(s) — {err_count} erreur(s).")
+    print(f"\nRésumé : {ok_count}/{total_outputs} OK — {warn_count} warning(s) — {err_count} erreur(s) — "
+          f"{total_yaml} YAML traité(s).")
     sys.exit(0 if err_count == 0 else 1)
 
 
