@@ -1,0 +1,32 @@
+payloadOnly: yes
+societe: Galec
+
+invoice:
+  number: 29102025004
+  issueDate: 2025-06-21
+  dueDate: 2025-09-30
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC014584
+
+vendor:
+  name: ORACLE FRANCE
+  SIREN: 335092318
+  VAT: FR06335092318
+  address:
+    streetName: 15 BOULEVARD CHARLES DE GAULLE
+    cityName: COLOMBES CEDEX
+    postalCode: 92715
+    country: FR
+
+invoiceLines:
+  - note: testnote
+    quantity: 1
+    unitprice: 100
+    name: testname
+    vat: 20
+
+VATamount:
+  20: 20

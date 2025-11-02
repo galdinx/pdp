@@ -1,0 +1,140 @@
+<ns0:Invoice xmlns:ns0="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:ns1="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ns2="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2">
+  <ns1:UBLVersionID>2.1</ns1:UBLVersionID>
+  <ns1:CustomizationID>urn:cen.eu:en16931:2017</ns1:CustomizationID>
+  <ns1:ProfileID>S1</ns1:ProfileID>
+  <ns1:ID>29102025004</ns1:ID>
+  <ns1:IssueDate>2025-06-21</ns1:IssueDate>
+  <ns1:DueDate>2025-09-30</ns1:DueDate>
+  <ns1:InvoiceTypeCode name="INV">380</ns1:InvoiceTypeCode>
+  <ns1:Note>#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €</ns1:Note>
+  <ns1:Note>#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal</ns1:Note>
+  <ns1:DocumentCurrencyCode>EUR</ns1:DocumentCurrencyCode>
+  <ns2:OrderReference>
+    <ns1:ID>GLC014584</ns1:ID>
+  </ns2:OrderReference>
+  <ns2:AccountingSupplierParty>
+    <ns2:Party>
+      <ns1:EndpointID schemeID="0225">335092318</ns1:EndpointID>
+      <ns2:PartyName>
+        <ns1:Name>ORACLE FRANCE</ns1:Name>
+      </ns2:PartyName>
+      <ns2:PostalAddress>
+        <ns1:StreetName>15 BOULEVARD CHARLES DE GAULLE</ns1:StreetName>
+        <ns1:CityName>COLOMBES CEDEX</ns1:CityName>
+        <ns1:PostalZone>92715</ns1:PostalZone>
+        <ns2:AddressLine>
+          <ns1:Line>15 BOULEVARD CHARLES DE GAULLE</ns1:Line>
+        </ns2:AddressLine>
+        <ns2:Country>
+          <ns1:IdentificationCode>FR</ns1:IdentificationCode>
+        </ns2:Country>
+      </ns2:PostalAddress>
+      <ns2:PartyTaxScheme>
+        <ns1:CompanyID>FR06335092318</ns1:CompanyID>
+        <ns2:TaxScheme>
+          <ns1:ID>VAT</ns1:ID>
+        </ns2:TaxScheme>
+      </ns2:PartyTaxScheme>
+      <ns2:PartyLegalEntity>
+        <ns1:RegistrationName>ORACLE FRANCE</ns1:RegistrationName>
+        <ns1:CompanyID schemeID="0002">335092318</ns1:CompanyID>
+      </ns2:PartyLegalEntity>
+    </ns2:Party>
+  </ns2:AccountingSupplierParty>
+  <ns2:AccountingCustomerParty>
+    <ns2:Party>
+      <ns1:EndpointID schemeID="0225">642007991</ns1:EndpointID>
+      <ns2:PartyName>
+        <ns1:Name>SC GALEC</ns1:Name>
+      </ns2:PartyName>
+      <ns2:PostalAddress>
+        <ns1:StreetName>26 quai Marcel Boyer</ns1:StreetName>
+        <ns1:CityName>IVRY-SUR-SEINE</ns1:CityName>
+        <ns1:PostalZone>94200</ns1:PostalZone>
+        <ns2:AddressLine>
+          <ns1:Line>26 quai Marcel Boyer</ns1:Line>
+        </ns2:AddressLine>
+        <ns2:Country>
+          <ns1:IdentificationCode>FR</ns1:IdentificationCode>
+        </ns2:Country>
+      </ns2:PostalAddress>
+      <ns2:PartyTaxScheme>
+        <ns1:CompanyID>FR36642007991</ns1:CompanyID>
+        <ns2:TaxScheme>
+          <ns1:ID>VAT</ns1:ID>
+        </ns2:TaxScheme>
+      </ns2:PartyTaxScheme>
+      <ns2:PartyLegalEntity>
+        <ns1:RegistrationName>SC GALEC</ns1:RegistrationName>
+        <ns1:CompanyID schemeID="0002">642007991</ns1:CompanyID>
+      </ns2:PartyLegalEntity>
+    </ns2:Party>
+  </ns2:AccountingCustomerParty>
+  <ns2:Delivery>
+    <ns2:DeliveryLocation>
+      <ns2:Address>
+        <ns1:StreetName>26 quai Marcel Boyer</ns1:StreetName>
+        <ns1:CityName>IVRY-SUR-SEINE</ns1:CityName>
+        <ns1:PostalZone>94200</ns1:PostalZone>
+        <ns2:AddressLine>
+          <ns1:Line>26 quai Marcel Boyer</ns1:Line>
+        </ns2:AddressLine>
+        <ns2:Country>
+          <ns1:IdentificationCode>FR</ns1:IdentificationCode>
+        </ns2:Country>
+      </ns2:Address>
+    </ns2:DeliveryLocation>
+  </ns2:Delivery>
+  <ns2:PaymentMeans>
+    <ns1:PaymentMeansCode name="VIREMENT">30</ns1:PaymentMeansCode>
+    <ns2:PayeeFinancialAccount>
+      <ns1:ID>FR761111111111111111</ns1:ID>
+    </ns2:PayeeFinancialAccount>
+  </ns2:PaymentMeans>
+  <ns2:PaymentTerms>
+    <ns1:ID>30N</ns1:ID>
+  </ns2:PaymentTerms>
+  <ns2:TaxTotal>
+    <ns1:TaxAmount currencyID="EUR">20</ns1:TaxAmount>
+    <ns2:TaxSubtotal>
+      <ns1:TaxableAmount currencyID="EUR">100</ns1:TaxableAmount>
+      <ns1:TaxAmount currencyID="EUR">20</ns1:TaxAmount>
+      <ns2:TaxCategory>
+        <ns1:ID>S</ns1:ID>
+        <ns1:Percent>20</ns1:Percent>
+        <ns2:TaxScheme>
+          <ns1:ID>VAT</ns1:ID>
+        </ns2:TaxScheme>
+      </ns2:TaxCategory>
+    </ns2:TaxSubtotal>
+  </ns2:TaxTotal>
+  <ns2:LegalMonetaryTotal>
+    <ns1:LineExtensionAmount currencyID="EUR">100</ns1:LineExtensionAmount>
+    <ns1:TaxExclusiveAmount currencyID="EUR">100</ns1:TaxExclusiveAmount>
+    <ns1:TaxInclusiveAmount currencyID="EUR">120</ns1:TaxInclusiveAmount>
+    <ns1:AllowanceTotalAmount currencyID="EUR">0</ns1:AllowanceTotalAmount>
+    <ns1:ChargeTotalAmount currencyID="EUR">0</ns1:ChargeTotalAmount>
+    <ns1:PrepaidAmount currencyID="EUR">0</ns1:PrepaidAmount>
+    <ns1:PayableRoundingAmount currencyID="EUR">0</ns1:PayableRoundingAmount>
+    <ns1:PayableAmount currencyID="EUR">120</ns1:PayableAmount>
+  </ns2:LegalMonetaryTotal>
+  <ns2:InvoiceLine>
+    <ns1:ID>1</ns1:ID>
+    <ns1:Note>testnote</ns1:Note>
+    <ns1:InvoicedQuantity unitCode="C62">1</ns1:InvoicedQuantity>
+    <ns1:LineExtensionAmount currencyID="EUR">100</ns1:LineExtensionAmount>
+    <ns2:Item>
+      <ns1:Name>testname</ns1:Name>
+      <ns2:ClassifiedTaxCategory>
+        <ns1:ID>S</ns1:ID>
+        <ns1:Percent>20</ns1:Percent>
+        <ns2:TaxScheme>
+          <ns1:ID>VAT</ns1:ID>
+        </ns2:TaxScheme>
+      </ns2:ClassifiedTaxCategory>
+    </ns2:Item>
+    <ns2:Price>
+      <ns1:PriceAmount currencyID="EUR">100</ns1:PriceAmount>
+    </ns2:Price>
+  </ns2:InvoiceLine>
+</ns0:Invoice>

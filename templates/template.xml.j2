@@ -1,0 +1,211 @@
+{% if not payloadOnly %}
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://xmlns.oracle.com/apps/scm/cmk/v2">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v2:B2BMessage>
+         <v2:Header>
+            <v2:ID type="String">{{ headerID }}</v2:ID>
+            <v2:Sender>
+               <v2:ID type="MISC">{{ vendor.SIREN }}</v2:ID>
+            </v2:Sender>
+            <v2:Intermediary>
+               <v2:ID type="Generic">DOCAPOSTE</v2:ID>
+            </v2:Intermediary>
+            <v2:Recipient>
+               <v2:ID type="MISC">{{ societes[societe].SIREN }}</v2:ID>
+            </v2:Recipient>
+            <v2:MessageDefinition>
+               <v2:DocumentType>Invoice</v2:DocumentType>
+               <v2:Protocol>UBL</v2:Protocol>
+               <v2:Version>2.1</v2:Version>
+            </v2:MessageDefinition>
+         </v2:Header>
+         <v2:Payload>
+{% endif %}
+<ubl:Invoice xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:ns2="http://xmlns.oracle.com/apps/scm/cmk/v2" xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" >
+   <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+   <cbc:CustomizationID>urn:cen.eu:en16931:2017</cbc:CustomizationID>
+      <cbc:ProfileID>S1</cbc:ProfileID>
+
+
+<cbc:ID>{{ invoice.number }}</cbc:ID>
+<cbc:IssueDate>{{ invoice.issueDate }}</cbc:IssueDate>
+<cbc:DueDate>{{ invoice.dueDate }}</cbc:DueDate>
+<cbc:InvoiceTypeCode name="INV">380</cbc:InvoiceTypeCode>
+{% for note in invoice.notes %}
+    <cbc:Note>{{ note }}</cbc:Note>
+{% endfor %}
+<cbc:DocumentCurrencyCode>{{ invoice.currency }}</cbc:DocumentCurrencyCode>
+<cac:OrderReference>
+    <cbc:ID>{{ PONumber }}</cbc:ID>
+</cac:OrderReference>
+
+
+<cac:AccountingSupplierParty>
+    <cac:Party>
+        <cbc:EndpointID schemeID="0225">{{ vendor.SIREN }}</cbc:EndpointID>
+        <cac:PartyName>
+            <cbc:Name>{{ vendor.name }}</cbc:Name>
+        </cac:PartyName>
+        <cac:PostalAddress>
+            <cbc:StreetName>{{ vendor.address.streetName }}</cbc:StreetName>
+            <cbc:CityName>{{ vendor.address.cityName }}</cbc:CityName>
+            <cbc:PostalZone>{{ vendor.address.postalCode }}</cbc:PostalZone>
+            <cac:AddressLine>
+                <cbc:Line>{{ vendor.address.streetName }}</cbc:Line>
+            </cac:AddressLine>
+            <cac:Country>
+                <cbc:IdentificationCode>{{ vendor.address.country }}</cbc:IdentificationCode>
+            </cac:Country>
+        </cac:PostalAddress>
+        <cac:PartyTaxScheme>
+            <cbc:CompanyID>{{ vendor.VAT }}</cbc:CompanyID>
+            <cac:TaxScheme>
+                <cbc:ID>VAT</cbc:ID>
+            </cac:TaxScheme>
+        </cac:PartyTaxScheme>
+        <cac:PartyLegalEntity>
+            <cbc:RegistrationName>{{ vendor.name }}</cbc:RegistrationName>
+            <cbc:CompanyID schemeID="0002">{{ vendor.SIREN }}</cbc:CompanyID>
+        </cac:PartyLegalEntity>
+    </cac:Party>
+</cac:AccountingSupplierParty>
+
+
+<cac:AccountingCustomerParty>
+    <cac:Party>
+        <cbc:EndpointID schemeID="0225">{{ societes[societe].SIREN }}</cbc:EndpointID>
+        <cac:PartyName>
+            <cbc:Name>{{ societes[societe].name }}</cbc:Name>
+        </cac:PartyName>
+        <cac:PostalAddress>
+            <cbc:StreetName>{{ societes[societe].address.streetName }}</cbc:StreetName>
+            <cbc:CityName>{{ societes[societe].address.cityName }}</cbc:CityName>
+            <cbc:PostalZone>{{ societes[societe].address.postalCode }}</cbc:PostalZone>
+            <cac:AddressLine>
+                <cbc:Line>{{ societes[societe].address.streetName }}</cbc:Line>
+            </cac:AddressLine>
+            <cac:Country>
+                <cbc:IdentificationCode>{{ societes[societe].address.country }}</cbc:IdentificationCode>
+            </cac:Country>
+        </cac:PostalAddress>
+        <cac:PartyTaxScheme>
+            <cbc:CompanyID>{{ societes[societe].VAT }}</cbc:CompanyID>
+            <cac:TaxScheme>
+                <cbc:ID>VAT</cbc:ID>
+            </cac:TaxScheme>
+        </cac:PartyTaxScheme>
+        <cac:PartyLegalEntity>
+            <cbc:RegistrationName>{{ societes[societe].name }}</cbc:RegistrationName>
+            <cbc:CompanyID schemeID="0002">{{ societes[societe].SIREN }}</cbc:CompanyID>
+        </cac:PartyLegalEntity>
+    </cac:Party>
+</cac:AccountingCustomerParty>
+
+
+<cac:Delivery>
+    <cac:DeliveryLocation>
+        <cac:Address>
+            <cbc:StreetName>{{ societes[societe].address.streetName }}</cbc:StreetName>
+            <cbc:CityName>{{ societes[societe].address.cityName }}</cbc:CityName>
+            <cbc:PostalZone>{{ societes[societe].address.postalCode }}</cbc:PostalZone>
+            <cac:AddressLine>
+                <cbc:Line>{{ societes[societe].address.streetName }}</cbc:Line>
+            </cac:AddressLine>
+            <cac:Country>
+                <cbc:IdentificationCode>{{ societes[societe].address.country }}</cbc:IdentificationCode>
+            </cac:Country>
+        </cac:Address>
+    </cac:DeliveryLocation>
+</cac:Delivery>
+
+
+<cac:PaymentMeans>
+    <cbc:PaymentMeansCode name="VIREMENT">{{ payment.days }}</cbc:PaymentMeansCode>
+    <cac:PayeeFinancialAccount>
+        <cbc:ID>{{ payment.IBAN }}</cbc:ID>
+    </cac:PayeeFinancialAccount>
+</cac:PaymentMeans>
+<cac:PaymentTerms>
+    <cbc:ID>{{ payment.termsID }}</cbc:ID>
+</cac:PaymentTerms>
+
+
+{% set vat_totals = {} %}
+{% set invoiceTotal_list = [] %}
+{% set vat_cumul_list = [] %}
+{% for key,value in VATamount.items() %}
+    {% do vat_totals.update({key: 0}) %}
+    {% do vat_cumul_list.append(value) %}
+{% endfor %}
+{% for line in invoiceLines %}
+  {% set total = line.quantity * line.unitprice %}
+  {% if line.vat in vat_totals %}
+    {% do vat_totals.update({line.vat: vat_totals[line.vat] + total}) %}
+    {% do invoiceTotal_list.append(total) %}
+  {% endif %}
+{% endfor %}
+{% set vat_cumul = vat_cumul_list | sum %}
+{% set invoiceTotal = invoiceTotal_list | sum %}
+
+
+<cac:TaxTotal>
+    <cbc:TaxAmount currencyID="{{ invoice.currency }}">{{ vat_cumul }}</cbc:TaxAmount>
+    {% for vat, total in vat_totals.items() %}
+    <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="{{ invoice.currency }}">{{ total }}</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="{{ invoice.currency }}">{{ VATamount[vat] }}</cbc:TaxAmount>
+        <cac:TaxCategory>
+            <cbc:ID>S</cbc:ID>
+            <cbc:Percent>{{ vat }}</cbc:Percent>
+            <cac:TaxScheme>
+                <cbc:ID>VAT</cbc:ID>
+            </cac:TaxScheme>
+        </cac:TaxCategory>
+    </cac:TaxSubtotal>
+    {% endfor %}
+</cac:TaxTotal>
+
+
+<cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal }}</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal }}</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal + vat_cumul }}</cbc:TaxInclusiveAmount>
+    <cbc:AllowanceTotalAmount currencyID="{{ invoice.currency }}">0</cbc:AllowanceTotalAmount>
+    <cbc:ChargeTotalAmount currencyID="{{ invoice.currency }}">0</cbc:ChargeTotalAmount>
+    <cbc:PrepaidAmount currencyID="{{ invoice.currency }}">0</cbc:PrepaidAmount>
+    <cbc:PayableRoundingAmount currencyID="{{ invoice.currency }}">0</cbc:PayableRoundingAmount>
+    <cbc:PayableAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal + vat_cumul }}</cbc:PayableAmount>
+</cac:LegalMonetaryTotal>
+
+
+{% for line in invoiceLines %}
+<cac:InvoiceLine>
+    <cbc:ID>{{ loop.index }}</cbc:ID>
+    <cbc:Note>{{ line.note }}</cbc:Note>
+    <cbc:InvoicedQuantity unitCode="C62">{{ line.quantity }}</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="{{ invoice.currency }}">{{ line.unitprice * line.quantity }}</cbc:LineExtensionAmount>
+    <cac:Item>
+        <cbc:Name>{{ line.name }}</cbc:Name>
+        <cac:ClassifiedTaxCategory>
+            <cbc:ID>S</cbc:ID>
+            <cbc:Percent>{{ line.vat }}</cbc:Percent>
+            <cac:TaxScheme>
+                <cbc:ID>VAT</cbc:ID>
+            </cac:TaxScheme>
+        </cac:ClassifiedTaxCategory>
+    </cac:Item>
+    <cac:Price>
+        <cbc:PriceAmount currencyID="{{ invoice.currency }}">{{ line.unitprice }}</cbc:PriceAmount>
+    </cac:Price>
+</cac:InvoiceLine>
+{% endfor %}
+
+
+</ubl:Invoice>
+{% if not payloadOnly %}
+         </v2:Payload>
+      </v2:B2BMessage>
+   </soapenv:Body>
+</soapenv:Envelope>	
+{% endif %}
