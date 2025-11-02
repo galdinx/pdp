@@ -44,7 +44,7 @@ societe: Galec  # ENUM: voir societes
 invoice:
   number: missing
   issueDate: missing
-  dueDate: missing
+  dueDate: ""
   notes: []
   currency: EUR
 
