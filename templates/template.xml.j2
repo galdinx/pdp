@@ -141,11 +141,9 @@
 {% endfor %}
 {% for line in invoiceLines %}
     {% set total = line.quantity * line.unitprice %}
+    {% do invoiceTotal_list.append(total) %}
     {% if line.vat in vat_totals %}
         {% do vat_totals.update({line.vat: vat_totals[line.vat] + total}) %}
-        {% do invoiceTotal_list.append(total) %}
-    {% elif line.vat == 0 %}
-        {% do invoiceTotal_list.append(total) %}
     {% endif %}
 {% endfor %}
 {% set vat_cumul = vat_cumul_list | sum %}
