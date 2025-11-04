@@ -1,0 +1,35 @@
+societe: Galec
+
+invoice:
+  number: Test1-CREA_20250757
+  issueDate: 2025-06-19
+  dueDate: 2025-08-18
+  notes:
+    - "#PMT# En tant que diffuseur, vous êtes redevable d'une contribution de 1,1% du montant HT de la facture de l'artiste auteur, auprès de l'URSSAF, soit 19,80€"
+    - "#PMD# Artiste auteur: Anne Denastas N° Sécurité sociale: 2760168224115"
+
+PONumber: GLC014609
+
+vendor:
+  name: DRiMS CREATIVE
+  SIREN: 518855481
+  VAT: FR83518855481
+  address:
+    streetName: 33 rue des Vignerons
+    cityName: Vincennes
+    postalCode: 94300
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7630003033830002004930571
+
+invoiceLines:
+  - name: DA - PLV Foire Aux Vins Anne 
+    quantity: 4
+    unitprice: 590
+    vat: 20
+    note: Du 06/05/2025 au 13/05/2025
+
+VATamount:
+  20: 472

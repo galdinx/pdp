@@ -1,0 +1,41 @@
+societe: Galec
+
+invoice:
+  number: test1-1524010862984
+  issueDate: 2024-12-13
+  dueDate: 2025-01-07
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC014624
+
+vendor:
+  name: SPRE
+  SIREN: 334784865
+  VAT: FR20334784865
+  address:
+    streetName: 27 rue de Berri
+    cityName: PARIS
+    postalCode: 75008
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR761111111111111111
+
+invoiceLines:
+  - name: Bal ou manifestation dansante
+    quantity: 1
+    unitprice: 260.08
+    vat: 20
+    note: "Rémunération équitable : Référence 03-10007341524-01"
+  - name: Bal ou manifestation dansante
+    quantity: 1
+    unitprice: 260.08
+    vat: 10
+    note: "Date de séance du 13/12/2024"
+    
+VATamount:
+  20: 52.02
+  10: 26.01

@@ -1,0 +1,35 @@
+societe: Galec
+
+invoice:
+  number: test1-1542F2500125
+  issueDate: 2025-06-30
+  dueDate: 2025-07-31
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC014610
+
+vendor:
+  name: Sopra Steria Group S.A.
+  SIREN: 326820065
+  VAT: FR18326820065
+  address:
+    streetName: 3, rue du Pré Faucon
+    cityName: Annecy
+    postalCode: 30238
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7630056002800280200420760
+
+invoiceLines:
+  - name: Invest Projet Outils Modernisation Datamangement
+    quantity: 25
+    unitprice: 550
+    vat: 20
+    note: Synchro Tarifs juin
+    
+VATamount:
+  20: 2750
