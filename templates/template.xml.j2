@@ -171,12 +171,12 @@
 <cac:LegalMonetaryTotal>
     <cbc:LineExtensionAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal }}</cbc:LineExtensionAmount>
     <cbc:TaxExclusiveAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal }}</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal + vat_cumul }}</cbc:TaxInclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="{{ invoice.currency }}">{{ (invoiceTotal + vat_cumul) | round(2) }}</cbc:TaxInclusiveAmount>
     <cbc:AllowanceTotalAmount currencyID="{{ invoice.currency }}">0</cbc:AllowanceTotalAmount>
     <cbc:ChargeTotalAmount currencyID="{{ invoice.currency }}">0</cbc:ChargeTotalAmount>
     <cbc:PrepaidAmount currencyID="{{ invoice.currency }}">0</cbc:PrepaidAmount>
     <cbc:PayableRoundingAmount currencyID="{{ invoice.currency }}">0</cbc:PayableRoundingAmount>
-    <cbc:PayableAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal + vat_cumul }}</cbc:PayableAmount>
+    <cbc:PayableAmount currencyID="{{ invoice.currency }}">{{ (invoiceTotal + vat_cumul) | round(2) }}</cbc:PayableAmount>
 </cac:LegalMonetaryTotal>
 
 
