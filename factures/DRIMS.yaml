@@ -1,6 +1,6 @@
 societe: Galec
 
-invoice:
+documentInfo:
   number: Test1-CREA_20250757
   issueDate: 2025-06-19
   dueDate: 2025-08-18
@@ -24,7 +24,7 @@ payment:
   type: VIREMENT
   IBAN: FR7630003033830002004930571
 
-invoiceLines:
+lineDetails:
   - name: DA - PLV Foire Aux Vins Anne 
     quantity: 4
     unitprice: 590

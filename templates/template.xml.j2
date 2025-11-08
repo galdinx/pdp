@@ -1,3 +1,5 @@
+{% set type = types[documentType].name %}
+{% set sign = types[documentType].sign %}
 {% if not payloadOnly %}
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://xmlns.oracle.com/apps/scm/cmk/v2">
    <soapenv:Header/>
@@ -15,27 +17,27 @@
                <v2:ID type="MISC">{{ societes[societe].SIREN }}</v2:ID>
             </v2:Recipient>
             <v2:MessageDefinition>
-               <v2:DocumentType>Invoice</v2:DocumentType>
+               <v2:DocumentType>{{ type }}</v2:DocumentType>
                <v2:Protocol>UBL</v2:Protocol>
                <v2:Version>2.1</v2:Version>
             </v2:MessageDefinition>
          </v2:Header>
          <v2:Payload>
 {% endif %}
-<ubl:Invoice xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:ns2="http://xmlns.oracle.com/apps/scm/cmk/v2" xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" >
+<ubl:{{ type }} xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:ns2="http://xmlns.oracle.com/apps/scm/cmk/v2" xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:{{ type }}-2" >
    <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
    <cbc:CustomizationID>urn:cen.eu:en16931:2017</cbc:CustomizationID>
       <cbc:ProfileID>S1</cbc:ProfileID>
 
 
-<cbc:ID>{{ invoice.number | required('invoice.number') }}</cbc:ID>
-<cbc:IssueDate>{{ invoice.issueDate | required('invoice.issueDate') }}</cbc:IssueDate>
-<cbc:DueDate>{{ invoice.dueDate | required('invoice.dueDate') }}</cbc:DueDate>
-<cbc:InvoiceTypeCode name="INV">380</cbc:InvoiceTypeCode>
-{% for note in invoice.notes %}
+<cbc:ID>{{ documentInfo.number | required('documentInfo.number') }}</cbc:ID>
+<cbc:IssueDate>{{ documentInfo.issueDate | required('documentInfo.issueDate') }}</cbc:IssueDate>
+<cbc:DueDate>{{ documentInfo.dueDate | required('documentInfo.dueDate') }}</cbc:DueDate>
+<cbc:{{ type }}TypeCode name="INV">{{ types[documentType].code }}</cbc:{{ type }}TypeCode>
+{% for note in documentInfo.notes %}
     <cbc:Note>{{ note }}</cbc:Note>
 {% endfor %}
-<cbc:DocumentCurrencyCode>{{ invoice.currency }}</cbc:DocumentCurrencyCode>
+<cbc:DocumentCurrencyCode>{{ documentInfo.currency }}</cbc:DocumentCurrencyCode>
 <cac:OrderReference>
     <cbc:ID>{{ PONumber }}</cbc:ID>
 </cac:OrderReference>
@@ -121,6 +123,7 @@
 </cac:Delivery>
 
 
+{% if type == "Invoice" %}
 <cac:PaymentMeans>
     <cbc:PaymentMeansCode name="{{ payment.type }}">{{ payment.types[payment.type] }}</cbc:PaymentMeansCode>
     <cac:PayeeFinancialAccount>
@@ -130,6 +133,7 @@
 <cac:PaymentTerms>
     <cbc:ID>{{ payment.termsID }}</cbc:ID>
 </cac:PaymentTerms>
+{% endif %}
 
 
 {% set vat_totals = {} %}
@@ -139,7 +143,7 @@
     {% do vat_totals.update({key: 0}) %}
     {% do vat_cumul_list.append(value) %}
 {% endfor %}
-{% for line in invoiceLines %}
+{% for line in lineDetails %}
     {% set total = line.quantity * line.unitprice %}
     {% do invoiceTotal_list.append(total) %}
     {% if line.vat in vat_totals %}
@@ -151,11 +155,11 @@
 
 
 <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="{{ invoice.currency }}">{{ vat_cumul }}</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ vat_cumul }}</cbc:TaxAmount>
     {% for vat, total in vat_totals.items() %}
     <cac:TaxSubtotal>
-        <cbc:TaxableAmount currencyID="{{ invoice.currency }}">{{ total }}</cbc:TaxableAmount>
-        <cbc:TaxAmount currencyID="{{ invoice.currency }}">{{ VATamount[vat] }}</cbc:TaxAmount>
+        <cbc:TaxableAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ total }}</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ VATamount[vat] }}</cbc:TaxAmount>
         <cac:TaxCategory>
             <cbc:ID>{% if vat != 0 %}S{% else %}Z{% endif %}</cbc:ID>
             <cbc:Percent>{{ vat }}</cbc:Percent>
@@ -169,23 +173,24 @@
 
 
 <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal }}</cbc:LineExtensionAmount>
-    <cbc:TaxExclusiveAmount currencyID="{{ invoice.currency }}">{{ invoiceTotal }}</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="{{ invoice.currency }}">{{ (invoiceTotal + vat_cumul) | round(2) }}</cbc:TaxInclusiveAmount>
-    <cbc:AllowanceTotalAmount currencyID="{{ invoice.currency }}">0</cbc:AllowanceTotalAmount>
-    <cbc:ChargeTotalAmount currencyID="{{ invoice.currency }}">0</cbc:ChargeTotalAmount>
-    <cbc:PrepaidAmount currencyID="{{ invoice.currency }}">0</cbc:PrepaidAmount>
-    <cbc:PayableRoundingAmount currencyID="{{ invoice.currency }}">0</cbc:PayableRoundingAmount>
-    <cbc:PayableAmount currencyID="{{ invoice.currency }}">{{ (invoiceTotal + vat_cumul) | round(2) }}</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ invoiceTotal }}</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ invoiceTotal }}</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ (invoiceTotal + vat_cumul) | round(2) }}</cbc:TaxInclusiveAmount>
+    <cbc:AllowanceTotalAmount currencyID="{{ documentInfo.currency }}">0</cbc:AllowanceTotalAmount>
+    <cbc:ChargeTotalAmount currencyID="{{ documentInfo.currency }}">0</cbc:ChargeTotalAmount>
+    <cbc:PrepaidAmount currencyID="{{ documentInfo.currency }}">0</cbc:PrepaidAmount>
+    <cbc:PayableRoundingAmount currencyID="{{ documentInfo.currency }}">0</cbc:PayableRoundingAmount>
+    <cbc:PayableAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ (invoiceTotal + vat_cumul) | round(2) }}</cbc:PayableAmount>
 </cac:LegalMonetaryTotal>
 
 
-{% for line in invoiceLines %}
-<cac:InvoiceLine>
+{% for line in lineDetails %}
+<cac:{{ type }}Line>
     <cbc:ID>{{ loop.index }}</cbc:ID>
     <cbc:Note>{{ line.note }}</cbc:Note>
-    <cbc:InvoicedQuantity unitCode="C62">{{ line.quantity }}</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="{{ invoice.currency }}">{{ line.unitprice * line.quantity }}</cbc:LineExtensionAmount>
+    {% set word = "InvoicedQuantity" if type == "Invoice" else "CreditedQuantity" %}
+    <cbc:{{ word }} unitCode="C62">{{ line.quantity }}</cbc:{{ word }}>
+    <cbc:LineExtensionAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ line.unitprice * line.quantity }}</cbc:LineExtensionAmount>
     <cac:Item>
         <cbc:Name>{{ line.name }}</cbc:Name>
         <cac:ClassifiedTaxCategory>
@@ -197,13 +202,13 @@
         </cac:ClassifiedTaxCategory>
     </cac:Item>
     <cac:Price>
-        <cbc:PriceAmount currencyID="{{ invoice.currency }}">{{ line.unitprice }}</cbc:PriceAmount>
+        <cbc:PriceAmount currencyID="{{ documentInfo.currency }}">{{ line.unitprice }}</cbc:PriceAmount>
     </cac:Price>
-</cac:InvoiceLine>
+</cac:{{ type}}Line>
 {% endfor %}
 
 
-</ubl:Invoice>
+</ubl:{{ type }}>
 {% if not payloadOnly %}
          </v2:Payload>
       </v2:B2BMessage>

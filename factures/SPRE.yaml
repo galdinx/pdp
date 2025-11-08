@@ -1,6 +1,6 @@
 societe: Galec
 
-invoice:
+documentInfo:
   number: test1-1524010862984
   issueDate: 2024-12-13
   dueDate: 2025-01-07
@@ -24,7 +24,7 @@ payment:
   type: VIREMENT
   IBAN: FR761111111111111111
 
-invoiceLines:
+lineDetails:
   - name: Bal ou manifestation dansante
     quantity: 1
     unitprice: 260.08

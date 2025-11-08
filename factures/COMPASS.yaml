@@ -1,6 +1,6 @@
 societe: Galec
 
-invoice:
+documentInfo:
   number: test1-9100580049
   issueDate: 2025-06-30
   dueDate: 2025-08-29
@@ -24,7 +24,7 @@ payment:
   type: VIREMENT
   IBAN: FR7430002005730000004070M87
 
-invoiceLines:
+lineDetails:
   - name: PETITS DEJEUNERS 
     quantity: 1
     unitprice: 51.06

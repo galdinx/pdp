@@ -1,6 +1,6 @@
 societe: Galec
 
-invoice:
+documentInfo:
   number: test1-1542F2500125
   issueDate: 2025-06-30
   dueDate: 2025-07-31
@@ -24,7 +24,7 @@ payment:
   type: VIREMENT
   IBAN: FR7630056002800280200420760
 
-invoiceLines:
+lineDetails:
   - name: Invest Projet Outils Modernisation Datamangement
     quantity: 25
     unitprice: 550

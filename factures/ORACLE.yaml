@@ -1,6 +1,6 @@
 societe: Galec
 
-invoice:
+documentInfo:
   number: 29102025004
   issueDate: 2025-06-21
   dueDate: 2025-09-30
@@ -24,7 +24,7 @@ payment:
   type: VIREMENT
   IBAN: FR761111111111111111
 
-invoiceLines:
+lineDetails:
   - name: Licence ERP
     quantity: 1
     unitprice: 50

@@ -1,6 +1,6 @@
 societe: Galec
 
-invoice:
+documentInfo:
   number: test3-80139772/002
   issueDate: 2025-06-26
   dueDate: 2025-08-29
@@ -24,7 +24,7 @@ payment:
   type: VIREMENT
   IBAN: missing
 
-invoiceLines:
+lineDetails:
   - name: LOCATION VEHICULE BORDEAUX 1189808512
     quantity: 1
     unitprice: 200.56

@@ -27,6 +27,16 @@ societes:
       postalCode: 94200
       country: FR
 
+types:
+  facture: 
+    name: Invoice
+    code: 380
+    sign: ""
+  avoir: 
+    name: CreditNote 
+    code: 381
+    sign: "-"
+
 vendor:
   name: missing
   SIREN: missing
@@ -41,7 +51,9 @@ payloadOnly: no
 headerID: OUT_1111
 societe: Galec  # ENUM: voir societes
 
-invoice:
+documentType: facture  # ENUM: voir types
+
+documentInfo:
   number: ''  # champ obligatoire
   issueDate: ''  # champ obligatoire
   dueDate: ''  # champ obligatoire
@@ -58,6 +70,6 @@ payment:
   IBAN: ''  # champ obligatoire
   termsID: 30N
 
-invoiceLines: []
+lineDetails: []
 
 VATamount: {}
