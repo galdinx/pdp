@@ -60,6 +60,10 @@ documentInfo:
   notes: []
   currency: EUR
 
+documentReference:
+  oldNumber: ''  # champ obligatoire en cas d'avoir
+  oldIssueDate: ''  # champ obligatoire en cas d'avoir
+
 PONumber: ''
 
 payment:
@@ -71,5 +75,14 @@ payment:
   termsID: 30N
 
 lineDetails: []
+  # - name: "Nom"
+  #   quantity: 1
+  #   unitprice: 100
+  #   vat: 0
+  #   note: "Commentaires Défini mutuellement"
 
 VATamount: {}
+
+VAT0:
+  vatCode: Z
+  # vatexCause: VATEX-EU-0

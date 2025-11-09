@@ -24,7 +24,7 @@
          </v2:Header>
          <v2:Payload>
 {% endif %}
-<ubl:{{ type }} xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:ns2="http://xmlns.oracle.com/apps/scm/cmk/v2" xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:{{ type }}-2" >
+<ubl:{{ type }} xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:{{ type }}-2" >
    <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
    <cbc:CustomizationID>urn:cen.eu:en16931:2017</cbc:CustomizationID>
       <cbc:ProfileID>S1</cbc:ProfileID>
@@ -33,7 +33,7 @@
 <cbc:ID>{{ documentInfo.number | required('documentInfo.number') }}</cbc:ID>
 <cbc:IssueDate>{{ documentInfo.issueDate | required('documentInfo.issueDate') }}</cbc:IssueDate>
 <cbc:DueDate>{{ documentInfo.dueDate | required('documentInfo.dueDate') }}</cbc:DueDate>
-<cbc:{{ type }}TypeCode name="INV">{{ types[documentType].code }}</cbc:{{ type }}TypeCode>
+<cbc:{{ type }}TypeCode>{{ types[documentType].code }}</cbc:{{ type }}TypeCode>
 {% for note in documentInfo.notes %}
     <cbc:Note>{{ note }}</cbc:Note>
 {% endfor %}
@@ -42,6 +42,14 @@
     <cbc:ID>{{ PONumber }}</cbc:ID>
 </cac:OrderReference>
 
+{% if documentType == "avoir" %}
+<cac:BillingReference>
+    <cac:InvoiceDocumentReference>
+        <cbc:ID>{{ documentReference.oldNumber }}</cbc:ID>
+        <cbc:IssueDate>{{ documentReference.oldIssueDate }}</cbc:IssueDate>
+    </cac:InvoiceDocumentReference>
+</cac:BillingReference>
+{% endif %}
 
 <cac:AccountingSupplierParty>
     <cac:Party>
@@ -60,12 +68,14 @@
                 <cbc:IdentificationCode>{{ vendor.address.country }}</cbc:IdentificationCode>
             </cac:Country>
         </cac:PostalAddress>
+        {% if VAT0.code != 'O' %}
         <cac:PartyTaxScheme>
             <cbc:CompanyID>{{ vendor.VAT }}</cbc:CompanyID>
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
             </cac:TaxScheme>
         </cac:PartyTaxScheme>
+        {% endif %}
         <cac:PartyLegalEntity>
             <cbc:RegistrationName>{{ vendor.name }}</cbc:RegistrationName>
             <cbc:CompanyID schemeID="0002">{{ vendor.SIREN }}</cbc:CompanyID>
@@ -92,12 +102,14 @@
                 <cbc:IdentificationCode>{{ societes[societe].address.country }}</cbc:IdentificationCode>
             </cac:Country>
         </cac:PostalAddress>
+        {% if VAT0.code != 'O' %}
         <cac:PartyTaxScheme>
             <cbc:CompanyID>{{ societes[societe].VAT }}</cbc:CompanyID>
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
             </cac:TaxScheme>
         </cac:PartyTaxScheme>
+        {% endif %}
         <cac:PartyLegalEntity>
             <cbc:RegistrationName>{{ societes[societe].name }}</cbc:RegistrationName>
             <cbc:CompanyID schemeID="0002">{{ societes[societe].SIREN }}</cbc:CompanyID>
@@ -158,11 +170,15 @@
     <cbc:TaxAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ vat_cumul }}</cbc:TaxAmount>
     {% for vat, total in vat_totals.items() %}
     <cac:TaxSubtotal>
-        <cbc:TaxableAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ total }}</cbc:TaxableAmount>
+        <cbc:TaxableAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ total | round(2) }}</cbc:TaxableAmount>
         <cbc:TaxAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ VATamount[vat] }}</cbc:TaxAmount>
         <cac:TaxCategory>
-            <cbc:ID>{% if vat != 0 %}S{% else %}Z{% endif %}</cbc:ID>
+            <cbc:ID>{% if vat != 0 %}S{% else %}{{ VAT0.code }}{% endif %}</cbc:ID>
+            {% if VAT0.code != 'O' %}
             <cbc:Percent>{{ vat }}</cbc:Percent>
+            {% else %}
+            <cbc:TaxExemptionReasonCode>{{ VAT0.vatexCause }}</cbc:TaxExemptionReasonCode>
+            {% endif %}
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
             </cac:TaxScheme>
@@ -173,8 +189,8 @@
 
 
 <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ invoiceTotal }}</cbc:LineExtensionAmount>
-    <cbc:TaxExclusiveAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ invoiceTotal }}</cbc:TaxExclusiveAmount>
+    <cbc:LineExtensionAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ invoiceTotal | round(2) }}</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ invoiceTotal | round(2) }}</cbc:TaxExclusiveAmount>
     <cbc:TaxInclusiveAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ (invoiceTotal + vat_cumul) | round(2) }}</cbc:TaxInclusiveAmount>
     <cbc:AllowanceTotalAmount currencyID="{{ documentInfo.currency }}">0</cbc:AllowanceTotalAmount>
     <cbc:ChargeTotalAmount currencyID="{{ documentInfo.currency }}">0</cbc:ChargeTotalAmount>
@@ -194,8 +210,8 @@
     <cac:Item>
         <cbc:Name>{{ line.name }}</cbc:Name>
         <cac:ClassifiedTaxCategory>
-            <cbc:ID>{% if line.vat != 0 %}S{% else %}Z{% endif %}</cbc:ID>
-            <cbc:Percent>{{ line.vat }}</cbc:Percent>
+            <cbc:ID>{% if line.vat != 0 %}S{% else %}{{VAT0.code}}{% endif %}</cbc:ID>
+            {% if VAT0.code != 'O' %}<cbc:Percent>{{ line.vat }}</cbc:Percent>{% endif %}
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
             </cac:TaxScheme>
