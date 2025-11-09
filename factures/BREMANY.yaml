@@ -1,0 +1,65 @@
+societe: Galec
+
+documentInfo:
+  number: test1-502134540
+  issueDate: 2025-09-01
+  dueDate: 2025-10-01
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC014584
+
+vendor:
+  name: BREMANY LEASE SAS
+  SIREN: 642007991
+  VAT: FR36642007991
+  address:
+    streetName: 1 rue du 1er mai - Immeuble Axe Seine
+    cityName: NANTERRE
+    postalCode: 92000
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7630003030100002571022346
+
+lineDetails:
+  - name: Total Avenant
+    quantity: 1
+    unitprice: 575.95
+    vat: 20
+    note: R75167 - GM-945-JW - PHILIPPE CASTELLI - FORD *-T KUGA3F190HTIT2MBA*REG - VU - 01/09/2025 - 30/09/2025
+  - name: Total Avenant
+    quantity: 1
+    unitprice: 575.95
+    vat: 20
+    note: R75169 - GM-886-JW - CLEMENT ROCHE - FORD *-T KUGA3F190HTIT2MBA*REG - VU - 01/09/2025 - 30/09/2025
+  - name: Total Avenant
+    quantity: 1
+    unitprice: 513.96
+    vat: 20
+    note: T60128 - GM-718-JW - JOSEPH DOS SANTOS - FORD -T KUGA3 F190H TIT 2M BA - VU - 01/09/2025 - 30/09/2025
+  - name: Total Avenant
+    quantity: 1
+    unitprice: 526.30
+    vat: 20
+    note: T60129 - GM-733-JW - CELINE GAUDIN - FORD -T KUGA3 F190H TIT 2M BA - VU - 01/09/2025 - 30/09/2025
+  - name: Total Avenant
+    quantity: 1
+    unitprice: 506.83
+    vat: 20
+    note: T60130 - GM-734-JW - CLEMENCE POULAIN - FORD -T KUGA3 F190H TIT 2M BA - VU - 01/09/2025 - 30/09/2025
+  - name: Total Avenant
+    quantity: 1
+    unitprice: 532.48
+    vat: 20
+    note: T60131 - GM-863-JW - CHRISTIAN BONDU - FORD -T KUGA3 F190H TIT 2M BA - VU - 01/09/2025 - 30/09/2025
+  - name: Total Avenant
+    quantity: 1
+    unitprice: 574.56
+    vat: 20
+    note: T60132 - GM-883-JW - JEAN-LUC COLIN - FORD -T KUGA3 F190H TIT 2M BA - VU - 01/09/2025 - 30/09/2025
+
+VATamount:
+  20: 761.21

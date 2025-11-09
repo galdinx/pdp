@@ -1,0 +1,35 @@
+societe: Galec
+
+documentInfo:
+  number: test1-20-FL-31025286
+  issueDate: 2025-07-07
+  dueDate: 2025-09-07
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC014629
+
+vendor:
+  name: CM-CIC LEASING SOLUTIONS
+  SIREN: 352862346
+  VAT: FR54352862346
+  address:
+    streetName: TSA 63001
+    cityName: LA DEFENSE CEDEX
+    postalCode: 92099
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7630066109240002001271834
+
+lineDetails:
+  - name: CONFIGURATION INFORMATIQUE DIVERS CONFIGURATION
+    quantity: 1
+    unitprice: 114462.51
+    vat: 20
+    note: CONFIGURATION INFORMATIQUE
+    
+VATamount:
+  20: 22892.51

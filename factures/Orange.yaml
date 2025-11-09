@@ -1,0 +1,35 @@
+societe: Galec
+
+documentInfo:
+  number: test1-12506006732
+  issueDate: 2025-06-01
+  dueDate: 2025-07-04
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC014584
+
+vendor:
+  name: ORANGE BUSINESS
+  SIREN: 335092318
+  VAT: FR06335092318
+  address:
+    streetName: TSA 21063
+    cityName: Massy Cedex
+    postalCode: 91306 
+    country: FR
+
+payment:
+  type: PRELEVEMENT
+  IBAN: FR7611899001240002526434567
+
+lineDetails:
+  - name: consommations
+    quantity: 1
+    unitprice: 123.07
+    vat: 20
+    note: 
+  
+VATamount:
+  20: 24.61

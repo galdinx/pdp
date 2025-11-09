@@ -1,0 +1,50 @@
+societe: Scafel
+
+documentInfo:
+  number: test1-MV-MKDT-25-003
+  issueDate: 2025-03-31
+  dueDate: 2025-03-31
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: SFL000195
+
+vendor:
+  name: SWILE
+  SIREN: 824012173
+  VAT: FR67824012173
+  address:
+    streetName: 561 rue Georges Méliès
+    cityName: Montpellier
+    postalCode: 34000
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7630004024780001147526913
+
+lineDetails:
+  - name: Titres-resto pour le mois
+    quantity: 52
+    unitprice: 9.40
+    vat: 0
+    note: "Nombre de bénéficiaires : 9"
+  # - name: Création de(s) carte(s)
+  #   quantity: 0
+  #   unitprice: 0
+  #   vat: 20
+  #   note: "0 utilisateurs existant"
+  # - name: Frais de rechargements par carte et bénéficiaire
+  #   quantity: 0
+  #   unitprice: 0
+  #   vat: 20
+  #   note: "9 utilisateurs existant"
+ 
+VATamount:
+  0: 0
+  # 20: 0
+
+VAT0:
+  code: O
+  vatexCause: VATEX-EU-O
