@@ -1,0 +1,41 @@
+societe: Scafel
+
+documentInfo:
+  number: test1-AVC72811
+  issueDate: 2025-03-11
+  dueDate: 2025-04-10
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+documentReference:
+  oldNumber: 'FAC25001794'
+  oldIssueDate: '2025-03-03'
+
+PONumber: SFL000190
+
+vendor:
+  name: SARL Distriten
+  SIREN: 538532631
+  VAT: FR49538532631
+  address:
+    streetName: 36 sentier des blancs
+    cityName: Meudon
+    postalCode:  92190
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7616807004008055427260351
+
+lineDetails:
+  - name: Avoir sur facture n°FAC25001750 du 03/03/2025
+    quantity: 1
+    unitprice: 255.40
+    vat: 20
+    note: SER_000000000000001 Bindy Bon de commande n° SFL000090
+    
+VATamount:
+  20: 51.08
+
+documentType: avoir

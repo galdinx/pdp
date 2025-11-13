@@ -1,0 +1,40 @@
+societe: ConsoRegie
+
+documentInfo:
+  number: test1-9048356236
+  issueDate: 2025-02-11
+  dueDate: 2025-03-13
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: CRG000135
+
+vendor:
+  name: HP France SAS
+  SIREN: 448694133
+  VAT: FR25448694133
+  address:
+    streetName: 14 rue de la Verrerie, CS 40012
+    cityName: Meudon Cedex
+    postalCode: 92197
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7630004008280001269376776
+
+lineDetails:
+  - name: Début configuration bundle 51852264/52812165 HP ProBook 445 G11 R7 /16GB/512GB configurable
+    quantity: 1
+    unitprice: 584
+    vat: 20
+    note: "No. de série: 1H85050WM7"
+  - name: Cont. Environnement
+    quantity: 1
+    unitprice: 3.32
+    vat: 20
+    note:  
+    
+VATamount:
+  20: 117.46

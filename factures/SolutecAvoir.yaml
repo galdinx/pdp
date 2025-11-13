@@ -1,0 +1,41 @@
+societe: Galec
+
+documentInfo:
+  number: test1-AVC72811
+  issueDate: 2025-06-27
+  dueDate: 2025-09-30
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+documentReference:
+  oldNumber: '71553'
+  oldIssueDate: '2025-04-30'
+
+PONumber: GLC012174
+
+vendor:
+  name: SOLUTEC
+  SIREN: 381345941
+  VAT: FR47381345941
+  address:
+    streetName: 10 RUE JOANNES CARRET
+    cityName: LYON
+    postalCode:  69009
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7616807004008055427260351
+
+lineDetails:
+  - name: AVOIR/FACTURE n"7 553 du 30/04/2025
+    quantity: 1
+    unitprice: 11130
+    vat: 20
+    note: Charge RUN ALICE OFFRE AMOA Support Alice Offre
+    
+VATamount:
+  20: 2226
+
+documentType: avoir

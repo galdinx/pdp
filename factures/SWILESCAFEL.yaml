@@ -30,20 +30,20 @@ lineDetails:
     unitprice: 9.40
     vat: 0
     note: "Nombre de bénéficiaires : 9"
-  # - name: Création de(s) carte(s)
-  #   quantity: 0
-  #   unitprice: 0
-  #   vat: 20
-  #   note: "0 utilisateurs existant"
-  # - name: Frais de rechargements par carte et bénéficiaire
-  #   quantity: 0
-  #   unitprice: 0
-  #   vat: 20
-  #   note: "9 utilisateurs existant"
+  - name: Création de(s) carte(s)
+    quantity: 0
+    unitprice: 0
+    vat: 20
+    note: "0 utilisateurs existant"
+  - name: Frais de rechargements par carte et bénéficiaire
+    quantity: 0
+    unitprice: 0
+    vat: 20
+    note: "9 utilisateurs existant"
  
 VATamount:
   0: 0
-  # 20: 0
+  20: 0
 
 VAT0:
   code: O

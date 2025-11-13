@@ -1,0 +1,41 @@
+societe: Galec
+
+documentInfo:
+  number: test1-AV-OXIA000006
+  issueDate: 2024-05-29
+  dueDate: 2024-07-13
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+documentReference:
+  oldNumber: Missing
+  oldIssueDate: 2024-05-29
+
+# PONumber: 
+
+vendor:
+  name: OXIANE
+  SIREN: 430112250
+  VAT: FR82430112250
+  address:
+    streetName: 98 AVENUE DU GAL LECLERC
+    cityName: BOULOGNE
+    postalCode: 92100
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7630003043880002002879951
+
+lineDetails:
+  - name: Remise de fin d'année pour la période du 01/01/2023 au 31/12/2023
+    quantity: 1
+    unitprice: 4620.60
+    vat: 20
+    note: STD
+    
+VATamount:
+  20: 924.12
+
+documentType: avoir

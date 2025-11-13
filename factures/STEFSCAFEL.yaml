@@ -1,0 +1,35 @@
+societe: Scafel
+
+documentInfo:
+  number: test1-6102407350679
+  issueDate: 2024-07-31
+  dueDate: 2024-08-30
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: SFL000025
+
+vendor:
+  name: STEF Information Et Technologies
+  SIREN: 851303982
+  VAT: FR25851303982
+  address:
+    streetName: 93 Boulevard Malesherbes
+    cityName: PARIS
+    postalCode: 75008
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR2430002005730000000079S28
+
+lineDetails:
+  - name: Devis OSC-2024-01-0001
+    quantity: 1
+    unitprice: 25738
+    vat: 20
+    note: "Déploiement SCASO : 50% phase intermédiaire"
+    
+VATamount:
+  20: 5147.60

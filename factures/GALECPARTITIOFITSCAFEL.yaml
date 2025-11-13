@@ -1,0 +1,35 @@
+societe: Scafel
+
+documentInfo:
+  number: test1-2000012580
+  issueDate: 2025-04-23
+  dueDate: 2025-05-23
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: SFL000202
+
+vendor:
+  name: S.C. GALEC
+  SIREN: 642007991
+  VAT: FR36642007991
+  address:
+    streetName: 26 QUAI MARCEL BOYER
+    cityName: IVRY-SUR-SEINE
+    postalCode: 94200
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR761111111111111111
+
+lineDetails:
+  - name: PARTITIO FIT
+    quantity: 1
+    unitprice: 271.84
+    vat: 20
+    note: Contrat de gestion du PARTITIO FIT pour le 1er trimestre 2025
+    
+VATamount:
+  20: 54.37

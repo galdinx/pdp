@@ -1,0 +1,70 @@
+societe: Scafel
+
+documentInfo:
+  number: test1-FC001655555
+  issueDate: 2025-06-01
+  dueDate: 2025-07-01
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: SFL000224
+
+vendor:
+  name: Société d'importation Leclerc – SIPLEC
+  SIREN: 315281113
+  VAT: FR37315281113
+  address:
+    streetName: 26, quai Marcel Boyer
+    cityName: Ivry sur Seine Cedex
+    postalCode: 94859
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7613149000912100047817828
+
+lineDetails:
+  - name: Sans plomb 95
+    quantity: 1
+    unitprice: 699.40
+    vat: 20
+    note: Carte Carburant - Consommations carburants
+  - name: Sans plomb 95-E10
+    quantity: 1
+    unitprice: 4376.34
+    vat: 20
+    note: Carte Carburant - Consommations carburants
+  - name: Sans plomb 98
+    quantity: 1
+    unitprice: 1078.79
+    vat: 20
+    note: Carte Carburant - Consommations carburants
+  - name: Super Ethanol
+    quantity: 1
+    unitprice: 242.87
+    vat: 20
+    note: Carte Carburant - Consommations carburants
+  - name: Lavage
+    quantity: 1
+    unitprice: 16.67
+    vat: 20
+    note: Carte Carburant - Services additionnels
+  - name: Abonnement carte CCPRO
+    quantity: 1
+    unitprice: 47.5
+    vat: 20
+    note: Carte Carburant - Abonnement(s)
+  - name: Péage et Parking
+    quantity: 1
+    unitprice: 2316.44
+    vat: 20
+    note: Badge LiberT - Consommations péages et parking LIBER-T
+  - name: Frais de Gestion Liber-T
+    quantity: 1
+    unitprice: 55.59
+    vat: 20
+    note: Badge LiberT - Frais
+
+VATamount:
+  20: 1766.72

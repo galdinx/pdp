@@ -1,0 +1,41 @@
+societe: ConsoRegie
+
+documentInfo:
+  number: test1-FACT-25-01452
+  issueDate: 2025-05-30
+  dueDate: 2025-06-30
+  notes:
+    - "Objet : DV360 - ALIMENTAIRE - DRIVE / - Mois de mai 2025"
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: CRG000138
+
+vendor:
+  name: CONVERTEO
+  SIREN: 499582948
+  VAT: FR13499582948
+  address:
+    streetName: 40 avenue des Terroirs de France
+    cityName:  Paris 12
+    postalCode: 75012
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR7610207001082021931268843
+
+lineDetails:
+  - name: Media  Data Costs 
+    quantity: 1
+    unitprice: 41857.76
+    vat: 20
+    note: --
+  - name: Platform Costs
+    quantity: 1
+    unitprice: 5380.69
+    vat: 20
+    note: --
+    
+VATamount:
+  20: 9447.69

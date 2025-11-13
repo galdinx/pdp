@@ -1,0 +1,41 @@
+societe: ConsoRegie
+
+documentInfo:
+  number: test1-2000012299
+  issueDate: 2025-04-01
+  dueDate: 2025-04-01
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+documentReference:
+  oldNumber: '2000011372'
+  oldIssueDate: '2025-02-01'
+
+PONumber: 
+
+vendor:
+  name: S.C. GALEC
+  SIREN: 642007991
+  VAT: FR36642007991
+  address:
+    streetName: 26 QUAI MARCEL BOYER
+    cityName: IVRY SUR SEINE
+    postalCode:  94200
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR761111111111111111
+
+lineDetails:
+  - name: Redevance Doris pour 1 utilisateur au titre de l'exercice 2024 
+    quantity: 1
+    unitprice: 70.68
+    vat: 20
+    note: CGR000132 Avoir annulationfacture 2000011372
+    
+VATamount:
+  20: 14.14
+
+documentType: avoir

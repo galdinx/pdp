@@ -1,0 +1,36 @@
+societe: ConsoRegie
+
+documentInfo:
+  number: test1-2000012173
+  issueDate: 2025-03-31
+  dueDate: 2025-04-30
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: CRG000144
+
+vendor:
+  name: S.C. GALEC
+  SIREN: 642007991
+  VAT: FR36642007991
+  address:
+    streetName: 26 QUAI MARCEL BOYER
+    cityName: IVRY-SUR-SEINE
+    postalCode: 94200
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR761111111111111111
+
+lineDetails:
+  - name: CONVENTION DE PERSONNEL
+    quantity: 1
+    unitprice: 45771.89
+    vat: 20
+    note: Mise à disposition de personnel du 01/01/2025 au 31/03/2025
+  
+    
+VATamount:
+  20: 9154.38
