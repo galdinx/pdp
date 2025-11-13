@@ -33,7 +33,8 @@
 <cbc:ID>{{ documentInfo.number | required('documentInfo.number') }}</cbc:ID>
 <cbc:IssueDate>{{ documentInfo.issueDate | required('documentInfo.issueDate') }}</cbc:IssueDate>
 <cbc:DueDate>{{ documentInfo.dueDate | required('documentInfo.dueDate') }}</cbc:DueDate>
-<cbc:{{ type }}TypeCode>{{ types[documentType].code }}</cbc:{{ type }}TypeCode>
+{% set code = documentInfo.code | default(types[documentType].code) %}
+<cbc:{{ type }}TypeCode>{{ code }}</cbc:{{ type }}TypeCode>
 {% for note in documentInfo.notes %}
     <cbc:Note>{{ note }}</cbc:Note>
 {% endfor %}
@@ -42,13 +43,17 @@
     <cbc:ID>{{ PONumber }}</cbc:ID>
 </cac:OrderReference>
 
-{% if documentType == "avoir" %}
+{% if code == 381 %}
 <cac:BillingReference>
     <cac:InvoiceDocumentReference>
-        <cbc:ID>{{ documentReference.oldNumber | required('documentReference.oldNumber') }}</cbc:ID>
-        <cbc:IssueDate>{{ documentReference.oldIssueDate | required('documentReference.oldIssueDate') }}</cbc:IssueDate>
+        <cbc:ID>{{ documentReference.number | required('documentReference.number') }}</cbc:ID>
+        <cbc:IssueDate>{{ documentReference.issueDate | required('documentReference.issueDate') }}</cbc:IssueDate>
     </cac:InvoiceDocumentReference>
 </cac:BillingReference>
+{% elif code == 262 %}
+<cac:ContractDocumentReference>
+    <cbc:ID>{{ documentReference.number | required('documentReference.number') }}</cbc:ID>
+</cac:ContractDocumentReference>
 {% endif %}
 
 <cac:AccountingSupplierParty>

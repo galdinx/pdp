@@ -59,10 +59,11 @@ documentInfo:
   dueDate: ''  # champ obligatoire
   notes: []
   currency: EUR
+  # code: 380  # surcharge le code automatique défini dans les types
 
 documentReference:
-  oldNumber: ''  # champ obligatoire en cas d'avoir
-  oldIssueDate: ''  # champ obligatoire en cas d'avoir
+  number: ''  # champ obligatoire en cas d'avoir
+  issueDate: ''  # champ obligatoire en cas d'avoir sur facture
 
 PONumber: ''
 
@@ -85,4 +86,4 @@ VATamount: {}
 
 VAT0:
   code: Z
-  # vatexCause: VATEX-EU-0
+  # vatexCause: VATEX-EU-O
