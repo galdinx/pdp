@@ -84,5 +84,5 @@ lineDetails: []
 VATamount: {}
 
 VAT0:
-  vatCode: Z
+  code: Z
   # vatexCause: VATEX-EU-0

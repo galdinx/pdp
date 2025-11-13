@@ -45,8 +45,8 @@
 {% if documentType == "avoir" %}
 <cac:BillingReference>
     <cac:InvoiceDocumentReference>
-        <cbc:ID>{{ documentReference.oldNumber }}</cbc:ID>
-        <cbc:IssueDate>{{ documentReference.oldIssueDate }}</cbc:IssueDate>
+        <cbc:ID>{{ documentReference.oldNumber | required('documentReference.oldNumber') }}</cbc:ID>
+        <cbc:IssueDate>{{ documentReference.oldIssueDate | required('documentReference.oldIssueDate') }}</cbc:IssueDate>
     </cac:InvoiceDocumentReference>
 </cac:BillingReference>
 {% endif %}
@@ -210,7 +210,7 @@
     <cac:Item>
         <cbc:Name>{{ line.name }}</cbc:Name>
         <cac:ClassifiedTaxCategory>
-            <cbc:ID>{% if line.vat != 0 %}S{% else %}{{VAT0.code}}{% endif %}</cbc:ID>
+            <cbc:ID>{% if line.vat != 0 %}S{% else %}{{ VAT0.code }}{% endif %}</cbc:ID>
             {% if VAT0.code != 'O' %}<cbc:Percent>{{ line.vat }}</cbc:Percent>{% endif %}
             <cac:TaxScheme>
                 <cbc:ID>VAT</cbc:ID>
