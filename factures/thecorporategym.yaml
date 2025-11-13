@@ -1,0 +1,39 @@
+societe: Galec
+
+documentInfo:
+  number: test1-FA1-967-2025
+  issueDate: 2025-09-30
+  dueDate: 2025-11-14
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC011351
+
+vendor:
+  name: THE CORPORATE GYM
+  SIREN: 485016026
+  VAT: FR75485016026
+  address:
+    streetName: 90-92, route de la Reine
+    cityName: Boulogne Billancourt
+    postalCode: 92100
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR5830002056870000291945R40
+
+lineDetails:
+  - name: Contrat de gestion
+    quantity: 1
+    unitprice: 11278.25
+    vat: 20
+    note: "Période : 4T2025 Projet : 94LEC01 Client : 1001834"
+  - name: Location Machines
+    quantity: 1
+    unitprice: 5837.75
+    vat: 20
+    note: "Période : 4T2025 Projet : 94LEC01 Client : 1001834"
+VATamount:
+  20: 3423.20

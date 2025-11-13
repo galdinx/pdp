@@ -7,10 +7,11 @@ documentInfo:
   notes:
     - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
     - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+  code: 262
 
 documentReference:
-  oldNumber: Missing
-  oldIssueDate: 2024-05-29
+  number: Missing
+  issueDate: 2024-05-29
 
 # PONumber: 
 

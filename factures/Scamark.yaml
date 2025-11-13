@@ -1,0 +1,35 @@
+societe: Galec
+
+documentInfo:
+  number: test1-0698 /12/2024
+  issueDate: 2024-12-19
+  dueDate: 2025-12-19
+  notes:
+    - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
+    - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+
+PONumber: GLC010831 
+
+vendor:
+  name: SCAMARK
+  SIREN: 410970503
+  VAT: FR05410970503
+  address:
+    streetName: 26, QUAI MARCEL BOYER
+    cityName: 26, QUAI MARCEL BOYER
+    postalCode: 94859
+    country: FR
+
+payment:
+  type: VIREMENT
+  IBAN: FR761111111111111111
+
+lineDetails:
+  - name: Refacturation des coûts 2024 de la gestion pour le compte duGALEC
+    quantity: 1
+    unitprice: 2531.55
+    vat: 20
+    note: «UNE HEURE POUR MOI»
+    
+VATamount:
+  20: 506.31
