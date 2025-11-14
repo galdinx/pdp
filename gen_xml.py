@@ -14,7 +14,8 @@ Fonctionnement :
   - Entrée : fichier YAML OU répertoire (avec --recursive pour descendre).
   - Pretty-print forcé via minidom.
   - XML mal formé : WARNING et écriture du rendu brut tel quel.
-  - Suppression de la déclaration XML (<?xml ...?>).
+  - Par défaut, **la déclaration XML est conservée**.
+    → Option -x / --no-xml-declaration pour **la supprimer**.
   - Jinja2 tolérant aux variables manquantes + extension 'do'.
   - Filtre Jinja 'required' (simple) pour rendre certaines variables obligatoires.
   - Chemins par défaut :
@@ -200,28 +201,32 @@ def strip_xml_declaration(text: str) -> str:
     return text
 
 
-def pretty_with_minidom(xml_text: str) -> str:
+def pretty_with_minidom(xml_text: str, keep_decl: bool) -> str:
     """
     Pretty-print forcé avec minidom.
     - Valide la bonne formation (lève ValueError si invalide).
-    - Supprime la déclaration XML et les lignes vides superflues.
-    - Conserve les préfixes de namespaces du texte source.
+    - Conserve les préfixes de namespaces.
+    - Conserve ou retire la déclaration XML selon keep_decl.
     """
     try:
         dom = minidom.parseString(xml_text.encode("utf-8"))
     except ExpatError as e:
         raise ValueError(f"Le rendu n'est pas un XML bien formé : {e}") from e
 
+    # toprettyxml avec encoding génère une déclaration XML
     pretty_bytes = dom.toprettyxml(indent="  ", encoding="utf-8")
     pretty = pretty_bytes.decode("utf-8")
 
-    # Retirer déclaration XML et lignes vides
     lines: List[str] = []
     for i, ln in enumerate(pretty.splitlines()):
-        if i == 0 and ln.startswith("<?xml"):
+        if i == 0 and ln.startswith("<?xml") and not keep_decl:
+            # on supprime la déclaration si demandé
             continue
         if ln.strip():
             lines.append(ln)
+        else:
+            # retire les lignes totalement vides
+            pass
     return "\n".join(lines)
 
 
@@ -254,7 +259,8 @@ def render_and_write_variant(
     template_path: Path,
     context: Dict[str, Any],
     payload_only_bool: bool,
-    output_path: Path
+    output_path: Path,
+    keep_decl: bool
 ) -> Tuple[bool, bool]:
     """
     Rend une variante donnée (payloadOnly booléen) et écrit le fichier.
@@ -277,15 +283,17 @@ def render_and_write_variant(
 
     try:
         rendered = render_jinja_xml(template_path, ctx)
-        rendered_no_decl = strip_xml_declaration(rendered)
+
+        # Si keep_decl=False, on supprime une éventuelle déclaration avant pretty
+        rendered_text = rendered if keep_decl else strip_xml_declaration(rendered)
 
         warned = False
         try:
-            pretty = pretty_with_minidom(rendered_no_decl)
-            output_text = pretty
+            output_text = pretty_with_minidom(rendered_text, keep_decl=keep_decl)
         except ValueError as ve:
             print(f"⚠️  WARNING ({output_path.name}) : {ve}", file=sys.stderr)
-            output_text = rendered_no_decl
+            # En fallback brut, respecter aussi le choix keep_decl (on ne rajoute pas / n'enlève pas)
+            output_text = rendered_text
             warned = True
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -293,7 +301,6 @@ def render_and_write_variant(
         print(f"✅ XML généré : {output_path}")
         return (True, warned)
     except Exception as e:
-        # Message générique (pas de détail spécifique à la variable manquante)
         print(f"❌ Erreur lors du rendu/écriture de {output_path.name} : {e}", file=sys.stderr)
         return (False, False)
 
@@ -304,7 +311,8 @@ def process_one_yaml(
     defaults_cli: Path | None,
     output_cli: Path | None,
     cwd: Path,
-    script_dir: Path
+    script_dir: Path,
+    keep_decl: bool
 ) -> Tuple[int, int, int]:
     """
     Traite un fichier YAML spécifique et génère 2 fichiers (payloadOnly=False & True).
@@ -336,9 +344,9 @@ def process_one_yaml(
         webchecker_out = webchecker_path_from(base_out)
 
         # 1) payloadOnly = False  -> base_out
-        ok1, warn1 = render_and_write_variant(template_path, context, False, base_out)
+        ok1, warn1 = render_and_write_variant(template_path, context, False, base_out, keep_decl=keep_decl)
         # 2) payloadOnly = True   -> webchecker_out
-        ok2, warn2 = render_and_write_variant(template_path, context, True, webchecker_out)
+        ok2, warn2 = render_and_write_variant(template_path, context, True, webchecker_out, keep_decl=keep_decl)
 
         ok_count = (1 if ok1 else 0) + (1 if ok2 else 0)
         warn_count = (1 if warn1 else 0) + (1 if warn2 else 0)
@@ -384,6 +392,11 @@ def main():
         action="store_true",
         help="En mode répertoire, traite aussi les sous-répertoires."
     )
+    parser.add_argument(
+        "-x", "--no-xml-declaration",
+        action="store_true",
+        help="Supprimer la déclaration XML en tête de fichier (par défaut elle est CONSERVÉE)."
+    )
     args = parser.parse_args()
 
     cwd = Path.cwd()
@@ -393,7 +406,9 @@ def main():
         print(f"❌ Chemin introuvable : {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    # Gestion fichier vs répertoire
+    # Par défaut, garder la déclaration XML ; -x la désactive
+    keep_decl = not args.no_xml_declaration
+
     total_yaml = 0
     total_outputs = 0  # 2 par YAML
     ok_count = 0
@@ -408,7 +423,8 @@ def main():
             defaults_cli=args.defaults,
             output_cli=args.output,   # autorisé en mode fichier
             cwd=cwd,
-            script_dir=script_dir
+            script_dir=script_dir,
+            keep_decl=keep_decl
         )
         ok_count += ok
         warn_count += warn
@@ -435,7 +451,8 @@ def main():
                 defaults_cli=args.defaults,
                 output_cli=None,      # ignoré en mode répertoire
                 cwd=cwd,
-                script_dir=script_dir
+                script_dir=script_dir,
+                keep_decl=keep_decl
             )
             ok_count += ok
             warn_count += warn
