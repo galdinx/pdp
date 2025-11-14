@@ -7,6 +7,7 @@ documentInfo:
   notes:
     - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
     - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+    - "#AAB# Absence d'escompte"
 
 PONumber: SFL000224
 

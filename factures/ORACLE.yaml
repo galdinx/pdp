@@ -7,10 +7,7 @@ documentInfo:
   notes:
     - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
     - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
-
-documentReference:
-  oldNumber: 29102025003
-  oldIssueDate: 2025-06-21
+    - "#AAB# Absence d'escompte"
 
 PONumber: GLC014584
 
@@ -42,5 +39,3 @@ lineDetails:
     
 VATamount:
   20: 20
-
-documentType: avoir

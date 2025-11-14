@@ -7,10 +7,11 @@ documentInfo:
   notes:
     - "#PMT# Indemnité forfaitaire pour frais de recouvrement de 40 €"
     - "#PMD# Pénalités égales à 3 fois le taux de l’intérêt légal"
+    - "#AAB# Absence d'escompte"
 
 documentReference:
-  oldNumber: '2000011372'
-  oldIssueDate: '2025-02-01'
+  number: '2000011372'
+  issueDate: '2025-02-01'
 
 PONumber: 
 
