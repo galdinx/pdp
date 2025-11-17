@@ -54,7 +54,12 @@
 <cac:ContractDocumentReference>
     <cbc:ID>{{ documentReference.number | required('documentReference.number') }}</cbc:ID>
 </cac:ContractDocumentReference>
+<cac:InvoicePeriod>
+    <cbc:StartDate>{{ documentReference.contractDates.start | required('documentReference.contractDates.start') }}</cbc:StartDate>
+    <cbc:EndDate>{{ documentReference.contractDates.end | required('documentReference.contractDates.end') }}</cbc:EndDate>
+</cac:InvoicePeriod>
 {% endif %}
+
 
 <cac:AccountingSupplierParty>
     <cac:Party>
@@ -176,10 +181,9 @@
         <cbc:TaxableAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ total | round(2) }}</cbc:TaxableAmount>
         <cbc:TaxAmount currencyID="{{ documentInfo.currency }}">{{ sign }}{{ VATamount[vat] }}</cbc:TaxAmount>
         <cac:TaxCategory>
-            {% if vat != 0 %}
-            <cbc:ID>S</cbc:ID>
-            <cbc:Percent>{{ vat }}</cbc:Percent>
-            {% else %}
+            <cbc:ID>{% if vat != 0 %}S{% else %}{{ VAT0.code }}{% endif %}</cbc:ID>
+            {% if vat !=0 or VAT0.code != 'O' %}<cbc:Percent>{{ vat }}</cbc:Percent>{% endif %}
+            {% if vat == 0 and VAT0.code != 'Z' %}
             <cbc:ID>{{ VAT0.code }}</cbc:ID>
             <cbc:TaxExemptionReasonCode>{{ VAT0.vatexCause }}</cbc:TaxExemptionReasonCode>
             {% endif %}

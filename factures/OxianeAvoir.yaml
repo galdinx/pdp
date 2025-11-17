@@ -12,7 +12,9 @@ documentInfo:
 
 documentReference:
   number: Missing
-  issueDate: 2024-05-29
+  contractDates:
+    start: '2023-01-01'
+    end: '2023-12-31'
 
 # PONumber: 
 

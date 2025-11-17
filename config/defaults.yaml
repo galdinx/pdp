@@ -62,8 +62,11 @@ documentInfo:
   # code: 380  # surcharge le code automatique défini dans les types
 
 documentReference:
-  number: ''  # champ obligatoire en cas d'avoir
-  issueDate: ''  # champ obligatoire en cas d'avoir sur facture
+  number: ''      # champ obligatoire en cas d'avoir
+  issueDate: ''   # champ obligatoire en cas d'avoir sur facture
+  contractDates:
+    start: ''     # champ obligatoire en cas d'avoir sur contrat
+    end: ''       # champ obligatoire en cas d'avoir sur contrat
 
 PONumber: ''
 
